@@ -1,5 +1,5 @@
 class Enfermero:
-    def __init__(self, id_enfermero: int, nombre: str, especialidad: str, id_sede: str):
+    def __init__(self, id_enfermero: int, nombre: str, especialidad: str, id_sede: int):
         self.id_enfermero = id_enfermero
         self.nombre = nombre
         self.especialidad = especialidad
