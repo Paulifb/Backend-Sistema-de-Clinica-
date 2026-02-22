@@ -10,7 +10,7 @@ class Enfermero:
             id_enfermero (int): Identificador único del enfermero.
             nombre (str): Nombre del enfermero.
             especialidad (str): Área o especialidad en la que trabaja.
-            id_sede (int): Identificador de la sede donde labora.
+            id_sede (int): Identificador de la sede donde labora
         """
         self.id_enfermero = id_enfermero
         self.nombre = nombre
