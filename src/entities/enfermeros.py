@@ -12,15 +12,34 @@ class Enfermero:
             especialidad (str): Área o especialidad en la que trabaja.
             id_sede (int): Identificador de la sede donde labora
         """
-        self.id_enfermero = id_enfermero
-        self.nombre = nombre
-        self.especialidad = especialidad
-        self.id_sede = id_sede
+        self._id_enfermero = id_enfermero
+        self._nombre = nombre
+        self._especialidad = especialidad
+        self._id_sede = id_sede
 
     def tomar_signos_vitales(self) -> None:
-        print(f"El enfermero {self.nombre} va a tomar los signos vitales.")
+        """
+        Simula la acción de tomar los signos vitales de un paciente.
+        """
+        print(f"El enfermero {self._nombre} va a tomar los signos vitales.")
 
     def administrar_medicamento(self, medicamento: str, paciente: str) -> None:
+        """
+        Simula la administración de un medicamento a un paciente.
+
+        Args:
+            medicamento (str): Nombre del medicamento a administrar.
+            paciente (str): Nombre del paciente que recibirá el medicamento.
+        """
         print(
-            f"El enfermero {self.nombre} va a administrar el medicamento: {medicamento} al paciente: {paciente}."
+            f"El enfermero {self._nombre} va a administrar el medicamento: {medicamento} al paciente: {paciente}."
         )
+
+    def mostrar_info(self) -> str:
+        """
+        Devuelve la información del enfermero.
+
+        Returns:
+            str: Nombre del enfermero y su especialidad.
+        """
+        return f"Enfermero: {self._nombre} | Especialidad: {self._especialidad}"
