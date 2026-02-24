@@ -1,17 +1,51 @@
 class Medico:
-    def __init__(self, id_medico: int, nombre: str, especialidad: str, licencia: str):
-        self.id_medico = id_medico
-        self.nombre = nombre
-        self.especialidad = especialidad
-        self.licencia = licencia
+    """
+    Representa un médico dentro del sistema de la clínica.
+    """
 
-    def imprimir_data(self):
+    def __init__(
+        self,
+        id_medico: int,
+        nombre: str,
+        especialidad: str,
+        licencia: str,
+    ) -> None:
+        """
+        Inicializa un objeto Medico.
+
+        Args:
+            id_medico (int): Identificador único del médico.
+            nombre (str): Nombre del médico.
+            especialidad (str): Especialidad médica.
+            licencia (str): Número de licencia profesional.
+        """
+        self._id_medico = id_medico
+        self._nombre = nombre
+        self._especialidad = especialidad
+        self._licencia = licencia
+
+    def dar_diagnostico(self, paciente: str, diagnostico: str) -> None:
+        """
+        Simula la asignación de un diagnóstico a un paciente.
+
+        Args:
+            paciente (str): Nombre del paciente.
+            diagnostico (str): Diagnóstico asignado.
+        """
         print(
-            f"Médico ID: {self.id_medico}, Nombre: {self.nombre}, "
-            f"Especialidad: {self.especialidad} y su N° de Licencia: {self.licencia}"
+            f"El médico {self._nombre} ha asignado el diagnóstico "
+            f"'{diagnostico}' al paciente {paciente}."
         )
 
+    def mostrar_info(self) -> str:
+        """
+        Devuelve la información básica del médico.
 
-# Ejemplo de uso
-medico1 = Medico(1020, "Dra. Elena Rossi", "Cardiología", "LIC-8899")
-medico1.imprimir_data()
+        Returns:
+            str: Información del médico.
+        """
+        return (
+            f"Médico: {self._nombre} | "
+            f"Especialidad: {self._especialidad} | "
+            f"Licencia: {self._licencia}"
+        )
