@@ -1,11 +1,15 @@
-class Medico:
+from src.entities.persona import Persona
+
+
+class Medico(Persona):
     """
     Representa un médico dentro del sistema de la clínica.
+    Hereda de la clase Persona.
     """
 
     def __init__(
         self,
-        id_medico: int,
+        id_persona: int,
         nombre: str,
         especialidad: str,
         licencia: str,
@@ -14,13 +18,12 @@ class Medico:
         Inicializa un objeto Medico.
 
         Args:
-            id_medico (int): Identificador único del médico.
+            id_persona (int): Identificador único del médico.
             nombre (str): Nombre del médico.
             especialidad (str): Especialidad médica.
             licencia (str): Número de licencia profesional.
         """
-        self._id_medico = id_medico
-        self._nombre = nombre
+        super().__init__(id_persona, nombre)
         self._especialidad = especialidad
         self._licencia = licencia
 
