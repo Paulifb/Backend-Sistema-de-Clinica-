@@ -1,4 +1,4 @@
-from .pacientes import Paciente
+from .Pacientes import Paciente
 from .medicos import Medico
 from .enfermeros import Enfermero
 from datetime import datetime
