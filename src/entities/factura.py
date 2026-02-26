@@ -1,3 +1,7 @@
+from src.entities.Pacientes import Paciente
+from src.entities.Cita import Cita
+
+
 class Factura:
     """
     Representa una factura generada por los servicios médicos
@@ -7,14 +11,16 @@ class Factura:
     y gestionar el estado de pago.
     """
 
-    def __init__(self, id_factura: int, paciente, cita, valor: float) -> None:
+    def __init__(
+        self, id_factura: int, paciente: Paciente, cita: Cita, valor: float
+    ) -> None:
         """
         Inicializa una factura.
 
         Args:
             id_factura (int): Identificador único de la factura.
-            paciente: Objeto Paciente asociado a la factura.
-            cita: Objeto Cita relacionado con el servicio prestado.
+            paciente (Paciente): Objeto Paciente asociado a la factura.
+            cita (Cita): Objeto Cita relacionado con el servicio prestado.
             valor (float): Valor total a pagar.
         """
 
@@ -45,13 +51,13 @@ class Factura:
         """
         return self._estado
 
-    def obtener_paciente(self):
+    def obtener_paciente(self) -> Paciente:
         """
         Retorna el paciente asociado a la factura.
         """
         return self._paciente
 
-    def obtener_cita(self):
+    def obtener_cita(self) -> Cita:
         """
         Retorna la cita asociada a la factura.
         """
@@ -63,7 +69,7 @@ class Factura:
         """
         return (
             f"Factura ID: {self._id_factura}\n"
-            f"Paciente: {self._paciente._nombre}\n"
+            f"Paciente: {self._paciente.nombre}\n"
             f"Valor: ${self._valor}\n"
             f"Estado: {self._estado}"
         )
@@ -87,6 +93,7 @@ class Factura:
         Args:
             nuevo_valor (float): Nuevo valor de la factura.
         """
+
         if nuevo_valor < 0:
             raise ValueError("El valor no puede ser negativo.")
 
