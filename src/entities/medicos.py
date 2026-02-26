@@ -29,6 +29,15 @@ class Medico(Persona):
         self._especialidad = especialidad
         self._licencia = licencia
 
+    def dar_diagnostico(self, paciente: str, diagnostico: str) -> None:
+        """
+        Simula la asignación de un diagnóstico a un paciente.
+        """
+        print(
+            f"El médico {self.nombre} ha asignado el diagnóstico "
+            f"'{diagnostico}' al paciente {paciente}."
+        )
+
     @property
     def especialidad(self) -> str:
         """Retorna la especialidad del médico."""
