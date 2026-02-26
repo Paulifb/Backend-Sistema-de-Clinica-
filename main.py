@@ -56,19 +56,23 @@ def main() -> None:
             continue
 
         if opcion == "1":
-            print("Registrar paciente\n")
-            id_paciente = int(input("Ingrese el ID del paciente: "))
-            nombre_paciente = input("Ingrese el nombre: ")
-            edad = int(input("Ingrese la edad: "))
-            diagnostico = input("Ingrese el diagnostico inicial:")
-            correo = input("Ingrese el correo: ")
-            telefono = input("Ingrese el teléfono: ")
-            paciente = paciente(
-                id_paciente, nombre_paciente, edad, diagnostico, correo, telefono
-            )
-            pacientes.append(paciente)
-            if pacientes is not None:
-                print("Paciente registrado exitosamente.")
+            """
+            Permite registrar un nuevo paciente en el sistema.
+            Solicita los datos básicos y lo agrega a la lista de pacientes.
+            """
+        print("Registrar paciente\n")
+        id_paciente = int(input("Ingrese el ID del paciente: "))
+        nombre_paciente = input("Ingrese el nombre: ")
+        edad = int(input("Ingrese la edad: "))
+        diagnostico = input("Ingrese el diagnostico inicial:")
+        correo = input("Ingrese el correo: ")
+        telefono = input("Ingrese el teléfono: ")
+        paciente = Paciente(
+            id_paciente, nombre_paciente, edad, diagnostico, correo, telefono
+        )
+        pacientes.append(paciente)
+        if pacientes is not None:
+            print("Paciente registrado exitosamente.")
 
         elif opcion == "2":
             print("Registrar médico\n")
@@ -173,14 +177,22 @@ def main() -> None:
                 medicos[0].dar_diagnostico(paciente, diagnostico)
 
         elif opcion == "10":
+            """
+            Permite mostrar la informacion de los pacientes registrados en el sistema
+            """
             print("Recibir informacion del paciente\n")
             if pacientes:
                 for p in pacientes:
                     print(p.obtener_informacion())
-                else:
-                    print("No hay pacientes registrados")
+            else:
+                print("No hay pacientes registrados")
 
         elif opcion == "11":
+            """
+            Permite generar una factura asociada a una cita y a un paciente.
+            Registra la factura en el sistema y muestra su información.
+
+            """
             print("Tramitar factura\n")
             if not pacientes or not citas:
                 print("Debe existir al menos un paciente y una cita.")
@@ -190,7 +202,7 @@ def main() -> None:
             paciente = pacientes[-1]
             cita = citas[-1]
 
-            factura = factura(id_factura, paciente, cita, valor)
+            factura = Factura(id_factura, paciente, cita, valor)
 
             facturas.append(factura)
 
