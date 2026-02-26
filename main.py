@@ -29,42 +29,52 @@ def menu():
 
 
 def main() -> None:
-    """
-    Ejecuta el ciclo principal del menú y gestiona la persistencia temporal
-    de los objetos registrados durante la sesión.
-    """
     citas = []
     medicos = []
     enfermeros = []
     facturas = []
     pacientes = []
+
     while True:
         menu()
         opcion = input("Seleccion una opción: ")
-        if opcion not in ["1", "2", "3"]:
-
-            if opcion not in [
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-                "10",
-                "11",
-                "12",
-            ]:
-                print("Opción no válida. Por favor, intente de nuevo.")
-                continue
+        if opcion not in [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        ]:
+            print("Opción no válida. Por favor, intente de nuevo.")
+            continue
 
         if opcion == "1":
-            print("Registrar paciente\n")
+            """
+            Permite registrar un nuevo paciente en el sistema.
+            Solicita los datos básicos y lo agrega a la lista de pacientes.
+            """
+        print("Registrar paciente\n")
+        id_paciente = int(input("Ingrese el ID del paciente: "))
+        nombre_paciente = input("Ingrese el nombre: ")
+        edad = int(input("Ingrese la edad: "))
+        diagnostico = input("Ingrese el diagnostico inicial:")
+        correo = input("Ingrese el correo: ")
+        telefono = input("Ingrese el teléfono: ")
+        paciente = Paciente(
+            id_paciente, nombre_paciente, edad, diagnostico, correo, telefono
+        )
+        pacientes.append(paciente)
+        if pacientes is not None:
+            print("Paciente registrado exitosamente.")
 
         elif opcion == "2":
-            """Captura datos, instancia la clase Medico y almacena el objeto en la lista."""
             print("Registrar médico\n")
             id_medico = int(input("Ingrese el ID del médico: "))
             nombre_medico = input("Ingrese el nombre del médico: ")
@@ -78,28 +88,12 @@ def main() -> None:
                 print("Médico registrado exitosamente.")
 
         elif opcion == "3":
-            """
-            Permite registrar un nuevo enfermero en el sistema.
-
-            Solicita al usuario los datos básicos del enfermero:
-            - ID del enfermero.
-            - Nombre completo.
-            - Especialidad.
-            - ID de la sede donde trabaja.
-
-            Luego, crea un objeto de tipo Enfermero con la información ingresada
-            y lo agrega a la lista de enfermeros del sistema.
-
-            Finalmente, muestra un mensaje de confirmación indicando que el
-            registro fue realizado exitosamente.
-            """
-
             print("Registrar enfermero\n")
             id_enfermero = int(input("Ingrese el ID del enfermero: "))
             nombre_enfermero = input("Ingrese el nombre del enfermero: ")
             especialidad_enfermero = input("Ingrese la especialidad del enfermero: ")
             id_sede_enfermero = int(
-                input("Ingrese el ID de la sede donde labora el enferomero: ")
+                input("Ingrese el ID de la sede donde labora el enfermero: ")
             )
             enfermero = Enfermero(
                 id_enfermero,
@@ -113,23 +107,6 @@ def main() -> None:
                 print("Enfermero registrado exitosamente.")
 
         elif opcion == "4":
-
-            """
-            Permite agendar una nueva cita médica en el sistema.
-
-            Solicita al usuario:
-            - El código único de la cita.
-            - La fecha y hora de la cita en formato YYYY-MM-DD HH:MM.
-
-            Valida que existan pacientes registrados; en caso contrario,
-            solicita registrar uno antes de continuar. También verifica
-            que haya al menos un profesional de la salud (médico o enfermero).
-
-            Selecciona automáticamente el último paciente registrado y el
-            último profesional disponible (priorizando médicos y, si no hay,
-            enfermeros). Luego crea un objeto de tipo Cita con la información
-            ingresada, lo agrega a la lista de citas y confirma el agendamiento.
-            """
             print("Agendar cita\n")
             codigo_cita = int(input("Ingrese el código de la cita: "))
             fecha_str = input("Ingrese la fecha y hora (YYYY-MM-DD HH:MM): ")
@@ -148,42 +125,18 @@ def main() -> None:
                 continue
 
             paciente = pacientes[-1]
-            if medicos:
-                profesional = medicos[-1]
-            else:
-                profesional = enfermeros[-1]
+            profesional = medicos[-1] if medicos else enfermeros[-1]
 
             cita = Cita(codigo_cita, fecha_hora, paciente, profesional)
-
             citas.append(cita)
             print("Cita agendada exitosamente.")
 
         elif opcion == "5":
-            """
-            Muestra la información de todas las citas registradas en el sistema.
-
-            Recorre la lista de citas existentes y presenta los detalles de cada
-            una utilizando el método info_cita(), el cual devuelve los datos
-            relevantes de la cita como paciente, profesional, fecha y hora.
-
-            Permite al usuario visualizar de manera clara las citas agendadas.
-            """
             print("Información de la cita\n")
             for cita in citas:
                 print(cita.info_cita())
 
         elif opcion == "6":
-            """
-            Permite reprogramar una cita médica existente.
-
-            Solicita al usuario el código de la cita que desea modificar
-            y la nueva fecha y hora en formato YYYY-MM-DD HH:MM.
-
-            Busca la cita dentro de la lista de citas registradas. Si la encuentra,
-            actualiza la fecha utilizando el método re_programar_cita() y muestra
-            un mensaje de confirmación. Si no se encuentra, informa al usuario
-            que la cita no existe en el sistema.
-            """
             print("Re programar cita\n")
             buscar_cita = input("Ingrese el código de la cita a re programar: ")
             nueva_fecha_str = input("Nueva fecha: ")
@@ -201,41 +154,22 @@ def main() -> None:
                 print("Cita no encontrada. Por favor, intente de nuevo.")
 
         elif opcion == "7":
-            """
-            Permite registrar una asistencia de enfermería en el sistema.
-
-            Verifica que exista al menos un enfermero y un paciente registrados.
-            Si se cumplen estas condiciones, solicita al usuario el nombre del
-            medicamento a administrar.
-
-            Selecciona el primer enfermero y el primer paciente de las listas
-            registradas, y utiliza el método administrar_medicamento() para
-            registrar la administración del medicamento.
-
-            En caso de no haber enfermeros o pacientes, muestra un mensaje
-            indicando que deben ser registrados previamente.
-            """
             print("Asistencia de Enfermeria\n")
-
             if enfermeros and pacientes:
                 medicamento = input("Ingrese el medicamento a administrar: ")
-
                 enfermero = enfermeros[0]
                 paciente = pacientes[0]
-
                 enfermero.administrar_medicamento(medicamento, paciente.nombre)
             else:
                 print("Debe registrar al menos un enfermero y un paciente.")
 
         elif opcion == "8":
-            """Muestra la información del médico utilizando el método __str__ definido en su clase."""
             print("Informacion del profesional\n")
             if medicos:
                 for m in medicos:
                     print(m)
 
         elif opcion == "9":
-            """Captura datos del paciente y utiliza un objeto médico para emitir un diagnóstico."""
             print("Recibir diagnostico del doctor\n")
             if medicos:
                 paciente = input("Nombre del paciente: ")
@@ -243,10 +177,37 @@ def main() -> None:
                 medicos[0].dar_diagnostico(paciente, diagnostico)
 
         elif opcion == "10":
+            """
+            Permite mostrar la informacion de los pacientes registrados en el sistema
+            """
             print("Recibir informacion del paciente\n")
+            if pacientes:
+                for p in pacientes:
+                    print(p.obtener_informacion())
+            else:
+                print("No hay pacientes registrados")
 
         elif opcion == "11":
+            """
+            Permite generar una factura asociada a una cita y a un paciente.
+            Registra la factura en el sistema y muestra su información.
+
+            """
             print("Tramitar factura\n")
+            if not pacientes or not citas:
+                print("Debe existir al menos un paciente y una cita.")
+                continue
+            id_factura = int(input("Ingrese ID de factura:"))
+            valor = float(input("Ingrese valor de la factura:"))
+            paciente = pacientes[-1]
+            cita = citas[-1]
+
+            factura = Factura(id_factura, paciente, cita, valor)
+
+            facturas.append(factura)
+
+            print("Factura generada exitosamente")
+            print(factura.obtener_informacion())
 
         elif opcion == "12":
             print("Saliendo del programa.")
