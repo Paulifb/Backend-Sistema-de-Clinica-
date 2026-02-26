@@ -1,11 +1,15 @@
-class Medico:
+from src.entities.persona import Persona
+
+
+class Medico(Persona):
     """
     Representa un médico dentro del sistema de la clínica.
+    Hereda de la clase Persona.
     """
 
     def __init__(
         self,
-        id_medico: int,
+        id_persona: int,
         nombre: str,
         especialidad: str,
         licencia: str,
@@ -14,38 +18,23 @@ class Medico:
         Inicializa un objeto Medico.
 
         Args:
-            id_medico (int): Identificador único del médico.
-            nombre (str): Nombre del médico.
-            especialidad (str): Especialidad médica.
+            id_persona (int): Identificador único heredado de Persona.
+            nombre (str): Nombre completo heredado de Persona.
+            especialidad (str): Especialidad médica del profesional.
             licencia (str): Número de licencia profesional.
         """
-        self._id_medico = id_medico
-        self._nombre = nombre
+        # Se eliminaron self._id_medico y self._nombre por ser redundantes
+        super().__init__(id_persona, nombre)
+
         self._especialidad = especialidad
         self._licencia = licencia
 
-    def dar_diagnostico(self, paciente: str, diagnostico: str) -> None:
-        """
-        Simula la asignación de un diagnóstico a un paciente.
+    @property
+    def especialidad(self) -> str:
+        """Retorna la especialidad del médico."""
+        return self._especialidad
 
-        Args:
-            paciente (str): Nombre del paciente.
-            diagnostico (str): Diagnóstico asignado.
-        """
-        print(
-            f"El médico {self._nombre} ha asignado el diagnóstico "
-            f"'{diagnostico}' al paciente {paciente}."
-        )
-
-    def mostrar_info(self) -> str:
-        """
-        Devuelve la información básica del médico.
-
-        Returns:
-            str: Información del médico.
-        """
-        return (
-            f"Médico: {self._nombre} | "
-            f"Especialidad: {self._especialidad} | "
-            f"Licencia: {self._licencia}"
-        )
+    @property
+    def licencia(self) -> str:
+        """Retorna la licencia del médico."""
+        return self._licencia
