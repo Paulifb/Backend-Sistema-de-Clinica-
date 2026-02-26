@@ -40,6 +40,16 @@ class Cita:
         self._paciente = paciente
         self._profesional = profesional
 
+    @property
+    def id_cita(self) -> int:
+        """Retorna el identificador único de la cita."""
+        return self._id_cita
+
+    @property
+    def fecha_hora(self) -> datetime:
+        """Retorna la fecha y hora programada de la cita."""
+        return self._fecha_hora
+
     def info_cita(self) -> str:
         """
         Devuelve la información principal de la cita en formato de texto.
