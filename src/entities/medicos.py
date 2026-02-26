@@ -4,7 +4,7 @@ from src.entities.persona import Persona
 class Medico(Persona):
     """
     Representa un médico dentro del sistema de la clínica.
-    Hereda de la clase Persona..
+    Hereda de la clase Persona.
     """
 
     def __init__(
