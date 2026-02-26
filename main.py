@@ -57,6 +57,18 @@ def main() -> None:
 
         if opcion == "1":
             print("Registrar paciente\n")
+            id_paciente = int(input("Ingrese el ID del paciente: "))
+            nombre_paciente = input("Ingrese el nombre: ")
+            edad = int(input("Ingrese la edad: "))
+            diagnostico = input("Ingrese el diagnostico inicial:")
+            correo = input("Ingrese el correo: ")
+            telefono = input("Ingrese el teléfono: ")
+            paciente = paciente(
+                id_paciente, nombre_paciente, edad, diagnostico, correo, telefono
+            )
+            pacientes.append(paciente)
+            if pacientes is not None:
+                print("Paciente registrado exitosamente.")
 
         elif opcion == "2":
             print("Registrar médico\n")
@@ -162,9 +174,28 @@ def main() -> None:
 
         elif opcion == "10":
             print("Recibir informacion del paciente\n")
+            if pacientes:
+                for p in pacientes:
+                    print(p.obtener_informacion())
+                else:
+                    print("No hay pacientes registrados")
 
         elif opcion == "11":
             print("Tramitar factura\n")
+            if not pacientes or not citas:
+                print("Debe existir al menos un paciente y una cita.")
+                continue
+            id_factura = int(input("Ingrese ID de factura:"))
+            valor = float(input("Ingrese valor de la factura:"))
+            paciente = pacientes[-1]
+            cita = citas[-1]
+
+            factura = factura(id_factura, paciente, cita, valor)
+
+            facturas.append(factura)
+
+            print("Factura generada exitosamente")
+            print(factura.obtener_informacion())
 
         elif opcion == "12":
             print("Saliendo del programa.")
