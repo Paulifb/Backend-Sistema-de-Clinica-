@@ -64,7 +64,6 @@ def main() -> None:
             print("Registrar paciente\n")
 
         elif opcion == "2":
-            print("Registrar médico\n")
             """Captura datos, instancia la clase Medico y almacena el objeto en la lista."""
             print("Registrar médico\n")
             id_medico = int(input("Ingrese el ID del médico: "))
