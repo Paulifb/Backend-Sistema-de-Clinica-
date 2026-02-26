@@ -36,6 +36,9 @@ def main() -> None:
     citas = []
     medicos = []
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6f0a12aaf7c087349c6af4a59e9bdf656525c5c7
     enfermeros = []
     facturas = []
     pacientes = []
@@ -60,6 +63,7 @@ def main() -> None:
             ]:
                 print("Opción no válida. Por favor, intente de nuevo.")
                 continue
+<<<<<<< HEAD
 =======
 
     while True:
@@ -83,15 +87,20 @@ def main() -> None:
             print("Opción no válida. Por favor, intente de nuevo.")
             continue
 >>>>>>> origin/prod
+=======
+>>>>>>> 6f0a12aaf7c087349c6af4a59e9bdf656525c5c7
 
         if opcion == "1":
             print("Registrar paciente\n")
 
         elif opcion == "2":
 <<<<<<< HEAD
+<<<<<<< HEAD
             print("Registrar médico\n")
 =======
 >>>>>>> origin/prod
+=======
+>>>>>>> 6f0a12aaf7c087349c6af4a59e9bdf656525c5c7
             """Captura datos, instancia la clase Medico y almacena el objeto en la lista."""
             print("Registrar médico\n")
             id_medico = int(input("Ingrese el ID del médico: "))
@@ -107,6 +116,9 @@ def main() -> None:
 
         elif opcion == "3":
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6f0a12aaf7c087349c6af4a59e9bdf656525c5c7
             """
             Permite registrar un nuevo enfermero en el sistema.
 
@@ -255,6 +267,7 @@ def main() -> None:
                 enfermero.administrar_medicamento(medicamento, paciente.nombre)
             else:
                 print("Debe registrar al menos un enfermero y un paciente.")
+<<<<<<< HEAD
 =======
             print("Registrar enfermero\n")
 
@@ -270,6 +283,8 @@ def main() -> None:
         elif opcion == "7":
             print("Asistencia de Enfermeria\n")
 >>>>>>> origin/prod
+=======
+>>>>>>> 6f0a12aaf7c087349c6af4a59e9bdf656525c5c7
 
         elif opcion == "8":
             """Muestra la información del médico utilizando el método __str__ definido en su clase."""
