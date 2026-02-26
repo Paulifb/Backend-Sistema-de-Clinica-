@@ -35,6 +35,7 @@ def main() -> None:
     """
     citas = []
     medicos = []
+<<<<<<< HEAD
     enfermeros = []
     facturas = []
     pacientes = []
@@ -59,12 +60,38 @@ def main() -> None:
             ]:
                 print("Opción no válida. Por favor, intente de nuevo.")
                 continue
+=======
+
+    while True:
+        menu()
+        opcion = input("Seleccion una opción: ")
+
+        if opcion not in [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+        ]:
+            print("Opción no válida. Por favor, intente de nuevo.")
+            continue
+>>>>>>> origin/prod
 
         if opcion == "1":
             print("Registrar paciente\n")
 
         elif opcion == "2":
+<<<<<<< HEAD
             print("Registrar médico\n")
+=======
+>>>>>>> origin/prod
             """Captura datos, instancia la clase Medico y almacena el objeto en la lista."""
             print("Registrar médico\n")
             id_medico = int(input("Ingrese el ID del médico: "))
@@ -79,6 +106,7 @@ def main() -> None:
                 print("Médico registrado exitosamente.")
 
         elif opcion == "3":
+<<<<<<< HEAD
             """
             Permite registrar un nuevo enfermero en el sistema.
 
@@ -227,6 +255,21 @@ def main() -> None:
                 enfermero.administrar_medicamento(medicamento, paciente.nombre)
             else:
                 print("Debe registrar al menos un enfermero y un paciente.")
+=======
+            print("Registrar enfermero\n")
+
+        elif opcion == "4":
+            print("Agendar cita\n")
+
+        elif opcion == "5":
+            print("Información de la cita\n")
+
+        elif opcion == "6":
+            print("Re programar cita\n")
+
+        elif opcion == "7":
+            print("Asistencia de Enfermeria\n")
+>>>>>>> origin/prod
 
         elif opcion == "8":
             """Muestra la información del médico utilizando el método __str__ definido en su clase."""
