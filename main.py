@@ -1,5 +1,5 @@
 """
-Módulo principal del Sistema de Gestión de Citas Médicas.
+Módulo principal del Sistema de Gestión de Citas Médicas
 Este módulo contiene la lógica del menú y la integración de las entidades del sistema.
 """
 
