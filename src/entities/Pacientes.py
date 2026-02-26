@@ -5,6 +5,7 @@ class Paciente(Persona):
     """
     Representa un paciente dentro del sistema de la clínica.
     Hereda de la clase Persona.
+
     """
 
     def __init__(
