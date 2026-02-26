@@ -18,37 +18,23 @@ class Medico(Persona):
         Inicializa un objeto Medico.
 
         Args:
-            id_persona (int): Identificador único del médico.
-            nombre (str): Nombre del médico.
-            especialidad (str): Especialidad médica.
+            id_persona (int): Identificador único heredado de Persona.
+            nombre (str): Nombre completo heredado de Persona.
+            especialidad (str): Especialidad médica del profesional.
             licencia (str): Número de licencia profesional.
         """
+        # Se eliminaron self._id_medico y self._nombre por ser redundantes
         super().__init__(id_persona, nombre)
+
         self._especialidad = especialidad
         self._licencia = licencia
 
-    def dar_diagnostico(self, paciente: str, diagnostico: str) -> None:
-        """
-        Simula la asignación de un diagnóstico a un paciente.
+    @property
+    def especialidad(self) -> str:
+        """Retorna la especialidad del médico."""
+        return self._especialidad
 
-        Args:
-            paciente (str): Nombre del paciente.
-            diagnostico (str): Diagnóstico asignado.
-        """
-        print(
-            f"El médico {self._nombre} ha asignado el diagnóstico "
-            f"'{diagnostico}' al paciente {paciente}."
-        )
-
-    def mostrar_info(self) -> str:
-        """
-        Devuelve la información básica del médico.
-
-        Returns:
-            str: Información del médico.
-        """
-        return (
-            f"Médico: {self._nombre} | "
-            f"Especialidad: {self._especialidad} | "
-            f"Licencia: {self._licencia}"
-        )
+    @property
+    def licencia(self) -> str:
+        """Retorna la licencia del médico."""
+        return self._licencia
