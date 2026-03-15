@@ -1,6 +1,16 @@
 import uuid
 
-from sqlalchemy import Column, Float, ForeignKey, Integer, Text, String, DateTime, func
+from sqlalchemy import (
+    Column,
+    Float,
+    ForeignKey,
+    Integer,
+    Text,
+    String,
+    texto,
+    DateTime,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -21,7 +31,7 @@ class Tratamiento(Base):
 
     nombre_tratamiento = Column(String(100), nullable=False)
     descripcion = Column(Text, nullable=True)
-    dosis = Column(Float, nullable=False)
+    dosis = Column(texto, nullable=False)
     duracion = Column(Integer, nullable=False)
 
     historial_medico = relationship("Historial_medico", foreign_keys=[id_historial])
