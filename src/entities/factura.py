@@ -1,100 +1,36 @@
-from src.entities.Pacientes import Paciente
-from src.entities.Cita import Cita
+import uuid
+
+from sqlalchemy import Column, DateTime, Float, Text, ForeignKey, String, func
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
+from src.database.config import Base
 
 
-class Factura:
-    """
-    Representa una factura generada por los servicios médicos
-    prestados en la clínica.
+class Factura(Base):
+    """Modelo de Factura"""
 
-    Permite registrar la información de cobro asociada a una cita
-    y gestionar el estado de pago.
-    """
+    __tablename__ = "facturas"
 
-    def __init__(
-        self, id_factura: int, paciente: Paciente, cita: Cita, valor: float
-    ) -> None:
-        """
-        Inicializa una factura.
+    id_factura = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+    )
+    id_cita = Column(UUID(as_uuid=True), ForeignKey("citas.id_cita"), nullable=False)
 
-        Args:
-            id_factura (int): Identificador único de la factura.
-            paciente (Paciente): Objeto Paciente asociado a la factura.
-            cita (Cita): Objeto Cita relacionado con el servicio prestado.
-            valor (float): Valor total a pagar.
-        """
+    total = Column(Float, nullable=False)
+    metodo_pago = Column(String(50), nullable=True)
+    estado_pago = Column(Text, nullable=False)
+    fecha_pago = Column(DateTime, nullable=False)
 
-        if valor < 0:
-            raise ValueError("El valor de la factura no puede ser negativo.")
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
+    id_usuario_creacion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
+    )
+    id_usuario_edita = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
+    )
 
-        self._id_factura = id_factura
-        self._paciente = paciente
-        self._cita = cita
-        self._valor = valor
-        self._estado = "Pendiente"
-
-    def obtener_id(self) -> int:
-        """
-        Retorna el identificador de la factura.
-        """
-        return self._id_factura
-
-    def obtener_valor(self) -> float:
-        """
-        Retorna el valor total de la factura.
-        """
-        return self._valor
-
-    def obtener_estado(self) -> str:
-        """
-        Retorna el estado actual de la factura.
-        """
-        return self._estado
-
-    def obtener_paciente(self) -> Paciente:
-        """
-        Retorna el paciente asociado a la factura.
-        """
-        return self._paciente
-
-    def obtener_cita(self) -> Cita:
-        """
-        Retorna la cita asociada a la factura.
-        """
-        return self._cita
-
-    def obtener_informacion(self) -> str:
-        """
-        Retorna un resumen con la información de la factura.
-        """
-        return (
-            f"Factura ID: {self._id_factura}\n"
-            f"Paciente: {self._paciente.nombre}\n"
-            f"Valor: ${self._valor}\n"
-            f"Estado: {self._estado}"
-        )
-
-    def marcar_como_pagada(self) -> None:
-        """
-        Cambia el estado de la factura a 'Pagada'.
-        """
-        self._estado = "Pagada"
-
-    def marcar_como_pendiente(self) -> None:
-        """
-        Cambia el estado de la factura a 'Pendiente'.
-        """
-        self._estado = "Pendiente"
-
-    def actualizar_valor(self, nuevo_valor: float) -> None:
-        """
-        Actualiza el valor de la factura.
-
-        Args:
-            nuevo_valor (float): Nuevo valor de la factura.
-        """
-
-        if nuevo_valor < 0:
-            raise ValueError("El valor no puede ser negativo.")
-
-        self._valor = nuevo_valor
+    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
+    citas = relationship("Citas", foreign_keys=[id_cita])

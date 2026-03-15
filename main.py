@@ -3,7 +3,7 @@ Módulo principal del Sistema de Gestión de Citas Médicas
 Este módulo contiene la lógica del menú y la integración de las entidades del sistema.
 """
 
-from src.entities.Pacientes import Paciente
+from entities.paciente import Paciente
 from src.entities.cita import Cita
 from src.entities.enfermeros import Enfermero
 from src.entities.factura import Factura
