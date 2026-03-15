@@ -2,13 +2,10 @@ import uuid
 
 from sqlalchemy import (
     Column,
-    Float,
     ForeignKey,
     Integer,
     Text,
     String,
-    texto,
-    DateTime,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -20,18 +17,18 @@ from src.database.config import Base
 class Tratamiento(Base):
     """Modelo de tratamiento"""
 
-    __tablename__ = "tratamiento"
+    __tablename__ = "tratamientos"
 
     id_tratamiento = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
     id_historial = Column(
-        UUID(as_uuid=True), ForeignKey("categoria.id_categoria"), nullable=False
+        UUID(as_uuid=True), ForeignKey("historiales.id_historial"), nullable=False
     )
 
     nombre_tratamiento = Column(String(100), nullable=False)
     descripcion = Column(Text, nullable=True)
-    dosis = Column(texto, nullable=False)
+    dosis = Column(Text, nullable=False)
     duracion = Column(Integer, nullable=False)
 
-    historial_medico = relationship("Historial_medico", foreign_keys=[id_historial])
+    historial = relationship("Historial", foreign_keys=[id_historial])

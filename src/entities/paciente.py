@@ -10,15 +10,16 @@ from src.database.config import Base
 class Paciente(Base):
     """Modelo de paciente"""
 
-    __tablename__ = "paciente"
+    __tablename__ = "pacientes"
 
     id_paciente = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
 
     id_eps = Column(UUID(as_uuid=True), ForeignKey("eps.id_eps"), nullable=False)
+
     id_usuario = Column(
-        UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
 
     nombre = Column(String(100), nullable=False)
@@ -32,13 +33,13 @@ class Paciente(Base):
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
 
     id_usuario_creacion = Column(
-        UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
     id_usuario_edita = Column(
-        UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=True
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
     )
 
-    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
-    usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
+    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuarios_creacion])
+    usuario_edita = relationship("Usuario", foreign_keys=[id_usuarios_edita])
     eps = relationship("Eps", foreign_keys=[id_eps])
     usuario = relationship("Usuario", foreign_keys=[id_usuario])
