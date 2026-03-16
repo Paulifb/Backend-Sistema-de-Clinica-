@@ -1,36 +1,40 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, String, Text, ForeignKey, func
+from sqlalchemy import Column, String, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
-
 from src.database.config import Base
 
 
 class Especialidad(Base):
-    """Modelo de Especialidad"""
+    """
+    Representa las áreas médicas o especialidades disponibles en el sistema.
+
+    Esta entidad funciona como un catálogo maestro de datos predefinidos
+    que no requieren seguimiento de auditoría ni edición frecuente.
+    """
 
     __tablename__ = "especialidades"
 
     id_especialidad = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True,
+        doc="Identificador único universal de la especialidad.",
     )
 
-    nombre = Column(String(100), nullable=False)
-    descripcion = Column(Text, nullable=True)
-
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
-    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
-
-    id_usuario_creacion = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
-    )
-    id_usuario_edita = Column(
-        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
+    nombre = Column(
+        String(100),
+        nullable=False,
+        doc="Nombre de la especialidad (ej. Cardiología, Pediatría).",
     )
 
-    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
-    usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
+    descripcion = Column(
+        Text,
+        nullable=True,
+        doc="Descripción detallada de lo que abarca la especialidad.",
+    )
 
-    # RELACIÓN
-    medicos = relationship("Medico", back_populates="especialidad")
+    def __repr__(self):
+        """Retorna una representación legible del objeto Especialidad."""
+        return f"<Especialidad(nombre='{self.nombre}')>"
