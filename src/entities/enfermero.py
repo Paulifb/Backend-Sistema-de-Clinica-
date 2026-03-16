@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, ForeignKey, String, DateTime
+from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -33,6 +33,6 @@ class Enfermero(Base):
 
     area = Column(String(120), nullable=False)
 
-    turno = Column(DateTime(timezone=True), nullable=False)
+    turno = Column(String(120), nullable=False)
 
     usuario = relationship("Usuario", foreign_keys=[id_usuario])
