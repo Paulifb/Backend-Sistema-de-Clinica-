@@ -24,4 +24,4 @@ class Usuario(Base):
     email = Column(String(120), nullable=False, unique=True, index=True)
     clave = Column(String(120), nullable=False)
     rol = Column(String(50), nullable=False)
-    estado = Column(Text, default=True)
+    estado = Column(Text, nullable=False)
