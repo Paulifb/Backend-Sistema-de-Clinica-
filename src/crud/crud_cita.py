@@ -2,7 +2,7 @@
 
 import datetime
 from datetime import timezone
-from typing import List, Optional, Text
+from typing import List, Optional
 from uuid import UUID
 
 from entities.usuario import Usuario
@@ -21,7 +21,7 @@ def crear_cita(
     id_servicio: UUID,
     fecha_hora: datetime.datetime,
     motivo: str,
-    estado: Text,
+    estado: str,
     id_usuario_creacion: UUID,
 ) -> Cita:
     """

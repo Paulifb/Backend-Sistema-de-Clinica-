@@ -1,6 +1,6 @@
 """CRUD para Historial (con trazabilidad)"""
 
-from typing import List, Optional, Text
+from typing import List, Optional
 from uuid import UUID
 
 from entities.usuario import Usuario
@@ -16,9 +16,9 @@ def crear_historial(
     id_cita: UUID,
     id_enfermero: UUID,
     diagnostico: str,
-    observaciones_medicas: Text,
-    indicaciones_enfermeria: Text,
-    observaciones_enfermeria: Text,
+    observaciones_medicas: str,
+    indicaciones_enfermeria: str,
+    observaciones_enfermeria: str,
     id_usuario_creacion: UUID,
 ) -> Historial:
     """

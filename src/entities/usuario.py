@@ -3,7 +3,7 @@ from typing import Optional
 import uuid
 
 from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy import Column, DateTime, String, Text, func
+from sqlalchemy import Column, DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 
 from src.database.config import Base
@@ -27,7 +27,7 @@ class Usuario(Base):
     email = Column(String(120), nullable=False, unique=True, index=True)
     clave = Column(String(120), nullable=False)
     rol = Column(String(50), nullable=False)
-    estado = Column(Text, nullable=False)
+    estado = Column(String(100), nullable=False)
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())

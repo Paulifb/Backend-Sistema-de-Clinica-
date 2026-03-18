@@ -4,7 +4,7 @@ Incluye creacion, login (verificacion de contraseña) y operaciones basicas.
 """
 
 import hashlib
-from typing import List, Optional, Text
+from typing import List, Optional
 from uuid import UUID
 
 from src.database.config import SessionLocal
@@ -31,7 +31,7 @@ def crear_usuario(
     email: str,
     clave: str,
     rol: str,
-    estado: Text,
+    estado: str,
 ) -> Usuario:
     """
     Crea un nuevo usuario en el sistema.
