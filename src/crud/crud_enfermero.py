@@ -6,6 +6,8 @@ from uuid import UUID
 from src.database.config import SessionLocal
 from src.entities.enfermero import Enfermero
 
+db = SessionLocal()
+
 
 def crear_enfermero(
     nombre: str,
@@ -26,7 +28,6 @@ def crear_enfermero(
     Returns:
         El registro del enfermero creado.
     """
-    db = SessionLocal()
 
     nombre = nombre.strip()
     telefono = telefono.strip()
@@ -67,7 +68,6 @@ def obtener_por_id(id_enfermero: UUID) -> Optional[Enfermero]:
     """
     Obtiene un registro del enfermero por su identificador.
     """
-    db = SessionLocal()
 
     return db.query(Enfermero).filter(Enfermero.id_enfermero == id_enfermero).first()
 
@@ -76,7 +76,6 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Enfermero]:
     """
     Obtiene todos los registros del enfermero con paginación.
     """
-    db = SessionLocal()
 
     return db.query(Enfermero).offset(skip).limit(limit).all()
 
@@ -84,7 +83,7 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Enfermero]:
 def actualizar_enfermero(
     id_enfermero: UUID,
     id_usuario: UUID,
-    args: dict,
+    **kwargs: dict,
 ) -> Optional[Enfermero]:
     """
     Actualiza los campos de un registro del enfermero.
@@ -100,11 +99,8 @@ def actualizar_enfermero(
     Returns:
         El registro del enfermero actualizado o None si no existe.
     """
-    db = SessionLocal()
 
-    enfermero = (
-        db.query(Enfermero).filter(Enfermero.id_enfermero == id_enfermero).first()
-    )
+    enfermero = obtener_por_id(id_enfermero)
 
     if enfermero is None:
         return None
@@ -114,7 +110,7 @@ def actualizar_enfermero(
     areas_validas = ["pediatria", "geriatria", "urgencias", "cuidados intensivos"]
     turnos_validos = ["mañana", "tarde", "noche"]
 
-    for key, value in args.items():
+    for key, value in kwargs.items():
         if key not in campos_validos:
             continue
 
@@ -145,11 +141,8 @@ def eliminar_enfermero(id_enfermero: UUID) -> bool:
     """
     Elimina un registro del enfermero por su identificador.
     """
-    db = SessionLocal()
 
-    enfermero = (
-        db.query(Enfermero).filter(Enfermero.id_enfermero == id_enfermero).first()
-    )
+    enfermero = obtener_por_id(id_enfermero)
 
     if enfermero:
         db.delete(enfermero)

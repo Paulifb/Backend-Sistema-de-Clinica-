@@ -10,6 +10,8 @@ from uuid import UUID
 from src.database.config import SessionLocal
 from src.entities.usuario import Usuario
 
+db = SessionLocal()
+
 
 def _hash_clave(clave: str) -> str:
     """
@@ -44,7 +46,6 @@ def crear_usuario(
     Returns:
         El usuario creado.
     """
-    db = SessionLocal()
 
     nombre_completo = nombre_completo.strip()
     email = email.strip().lower()
@@ -114,7 +115,6 @@ def obtener_por_id(id_usuario: UUID) -> Optional[Usuario]:
     """
     Obtiene un usuario por su identificador.
     """
-    db = SessionLocal()
 
     return db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
 
@@ -123,7 +123,6 @@ def obtener_por_email(email: str) -> Optional[Usuario]:
     """
     Obtiene un usuario por su correo electrónico.
     """
-    db = SessionLocal()
 
     email = email.strip().lower()
 
@@ -134,7 +133,6 @@ def obtener_todos() -> List[Usuario]:
     """
     Obtiene todos los usuarios.
     """
-    db = SessionLocal()
 
     return db.query(Usuario).all()
 
@@ -143,35 +141,33 @@ def hay_usuarios() -> bool:
     """
     Verifica si hay usuarios registrados.
     """
-    db = SessionLocal()
 
     return db.query(Usuario).first() is not None
 
 
 def actualizar_usuario(
     id_usuario: UUID,
-    args: dict,
+    **kwargs: dict,
 ) -> Optional[Usuario]:
     """
     Actualiza los campos de un usuario existente.
 
     Args:
         id_usuario: Identificador del usuario a actualizar.
-        args: Diccionario con los campos y valores a actualizar.
+        kwargs: Diccionario con los campos y valores a actualizar.
 
     Returns:
         El usuario actualizado o None si el usuario no existe.
     """
-    db = SessionLocal()
 
-    usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
+    usuario = obtener_por_id(id_usuario)
 
     if not usuario:
         return None
 
     campos_validos = {"nombre_completo", "email", "clave", "rol", "estado"}
 
-    for key, value in args.items():
+    for key, value in kwargs.items():
 
         if key not in campos_validos:
             continue
@@ -210,9 +206,7 @@ def eliminar_usuario(id_usuario: UUID) -> bool:
     Elimina un usuario por su identificador.
     """
 
-    db = SessionLocal()
-
-    usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
+    usuario = obtener_por_id(id_usuario)
 
     if usuario:
         db.delete(usuario)

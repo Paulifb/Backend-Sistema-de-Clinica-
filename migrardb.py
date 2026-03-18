@@ -2,7 +2,7 @@
 Script para crear las tablas en Neon (PostgreSQL).
 Ejecutar una vez después de configurar DATABASE_URL en .env:
 
-  python init_db.py
+python init_db.py
 
 No es necesario levantar la API; este script solo aplica el esquema.
 """
@@ -18,9 +18,12 @@ import src.entities.eps
 import src.entities.factura
 import src.entities.historial
 import src.entities.medico
+import src.entities.servicio
+import src.entities.especialidad
 import src.entities.paciente
 import src.entities.usuario
-import src.entities.tratamiento
+
+# import src.entities.tratamiento
 from src.database.config import create_tables
 
 # Cargar .env desde la carpeta del proyecto (donde está init_db.py)

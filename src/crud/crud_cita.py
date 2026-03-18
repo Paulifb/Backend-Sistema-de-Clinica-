@@ -11,6 +11,8 @@ from src.entities.paciente import Paciente
 from src.entities.servicio import Servicio
 from src.entities.medico import Medico
 
+db = SessionLocal()
+
 
 def crear_cita(
     id_paciente: UUID,
@@ -36,8 +38,6 @@ def crear_cita(
     Returns:
         La cita creada.
     """
-
-    db = SessionLocal()
 
     motivo = motivo.strip()
     estado = estado.strip().lower()
@@ -91,7 +91,6 @@ def obtener_por_id(id_cita: UUID) -> Optional[Cita]:
     """
     Obtiene una cita por su identificador.
     """
-    db = SessionLocal()
 
     return db.query(Cita).filter(Cita.id_cita == id_cita).first()
 
@@ -100,7 +99,6 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Cita]:
     """
     Obtiene todas las citas con paginación.
     """
-    db = SessionLocal()
 
     return db.query(Cita).offset(skip).limit(limit).all()
 
@@ -108,7 +106,7 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Cita]:
 def actualizar_cita(
     id_cita: UUID,
     id_usuario_edicion: UUID,
-    args: dict,
+    **kwargs: dict,
 ) -> Optional[Cita]:
     """
     Actualiza los campos de una cita existente.
@@ -119,14 +117,13 @@ def actualizar_cita(
     Args:
         id_cita: Identificador de la cita a actualizar.
         id_usuario_edicion: Usuario que realiza la modificación.
-        args: Diccionario con los campos y valores a actualizar.
+        **kwargs: Diccionario con los campos y valores a actualizar.
 
     Returns:
         La cita actualizada o None si la cita no existe.
     """
-    db = SessionLocal()
 
-    cita = db.query(Cita).filter(Cita.id_cita == id_cita).first()
+    cita = obtener_por_id(id_cita)
 
     if cita is None:
         return None
@@ -134,7 +131,7 @@ def actualizar_cita(
     campos_validos = {"fecha_hora", "motivo", "estado"}
     estados_validos = {"pendiente", "confirmada", "cancelada"}
 
-    for key, value in args.items():
+    for key, value in kwargs.items():
         if key not in campos_validos:
             continue
 
@@ -176,9 +173,8 @@ def eliminar_cita(id_cita: UUID) -> bool:
     """
     Elimina una cita por su identificador.
     """
-    db = SessionLocal()
 
-    cita = db.query(Cita).filter(Cita.id_cita == id_cita).first()
+    cita = obtener_por_id(id_cita)
 
     if cita:
         db.delete(cita)

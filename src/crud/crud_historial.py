@@ -8,6 +8,8 @@ from src.entities.historial import Historial
 from src.entities.cita import Cita
 from src.entities.enfermero import Enfermero
 
+db = SessionLocal()
+
 
 def crear_historial(
     id_cita: UUID,
@@ -33,7 +35,6 @@ def crear_historial(
     Returns:
         El registro del historial creado.
     """
-    db = SessionLocal()
 
     if not db.query(Cita).filter(Cita.id_cita == id_cita).first():
         raise ValueError("La cita especificada no existe")
@@ -78,7 +79,6 @@ def obtener_por_id(id_historial: UUID) -> Optional[Historial]:
     """
     Obtiene un registro del historial por su identificador.
     """
-    db = SessionLocal()
 
     return db.query(Historial).filter(Historial.id_historial == id_historial).first()
 
@@ -87,7 +87,6 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Historial]:
     """
     Obtiene todos los registros del historial con paginación.
     """
-    db = SessionLocal()
 
     return db.query(Historial).offset(skip).limit(limit).all()
 
@@ -95,7 +94,7 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Historial]:
 def actualizar_historial(
     id_historial: UUID,
     id_usuario_edicion: UUID,
-    args: dict,
+    **kwargs: dict,
 ) -> Optional[Historial]:
     """
     Actualiza los campos de un registro del historial.
@@ -106,16 +105,13 @@ def actualizar_historial(
     Args:
         id_historial: Identificador del registro del historial a actualizar.
         id_usuario_edicion: Usuario que realiza la modificación.
-        args: Diccionario con los campos y valores a actualizar.
+        kwargs: Diccionario con los campos y valores a actualizar.
 
     Returns:
         El registro del historial actualizado o None si no existe.
     """
-    db = SessionLocal()
 
-    historial = (
-        db.query(Historial).filter(Historial.id_historial == id_historial).first()
-    )
+    historial = obtener_por_id(id_historial)
 
     if historial is None:
         return None
@@ -127,8 +123,8 @@ def actualizar_historial(
         "observaciones_enfermeria",
     }
 
-    if "diagnostico" in args:
-        diagnostico = args["diagnostico"]
+    if "diagnostico" in kwargs:
+        diagnostico = kwargs["diagnostico"]
 
         if not isinstance(diagnostico, str):
             raise ValueError("El diagnóstico debe ser una cadena de texto")
@@ -141,9 +137,9 @@ def actualizar_historial(
         if len(diagnostico) > 255:
             raise ValueError("El diagnóstico no puede exceder los 255 caracteres")
 
-        args["diagnostico"] = diagnostico
+        kwargs["diagnostico"] = diagnostico
 
-    for key, value in args.items():
+    for key, value in kwargs.items():
         if key not in campos_validos:
             continue
 
@@ -164,11 +160,8 @@ def eliminar_historial(id_historial: UUID) -> bool:
     """
     Elimina un registro del historial por su identificador.
     """
-    db = SessionLocal()
 
-    historial = (
-        db.query(Historial).filter(Historial.id_historial == id_historial).first()
-    )
+    historial = obtener_por_id(id_historial)
 
     if historial:
         db.delete(historial)
