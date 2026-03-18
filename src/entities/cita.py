@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Text, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -39,7 +39,7 @@ class Cita(Base):
 
     fecha_hora = Column(DateTime(timezone=True), nullable=False)
 
-    motivo = Column(Text, nullable=False)
+    motivo = Column(String(200), nullable=False)
 
     estado = Column(Text, nullable=False)
 

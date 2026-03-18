@@ -19,7 +19,7 @@ def crear_cita(
     id_medico: UUID,
     id_servicio: UUID,
     fecha_hora: datetime.datetime,
-    motivo: Text,
+    motivo: str,
     estado: Text,
     id_usuario_creacion: UUID,
 ) -> Cita:
