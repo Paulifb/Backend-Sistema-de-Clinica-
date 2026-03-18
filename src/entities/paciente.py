@@ -39,7 +39,7 @@ class Paciente(Base):
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
     )
 
-    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuarios_creacion])
-    usuario_edita = relationship("Usuario", foreign_keys=[id_usuarios_edita])
+    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
     eps = relationship("Eps", foreign_keys=[id_eps])
     usuario = relationship("Usuario", foreign_keys=[id_usuario])

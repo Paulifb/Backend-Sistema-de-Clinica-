@@ -27,7 +27,7 @@ class Enfermero(Base):
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
 
-    nombre_completo = Column(String(120), nullable=False)
+    nombre = Column(String(120), nullable=False)
 
     telefono = Column(String(20), nullable=False)
 
