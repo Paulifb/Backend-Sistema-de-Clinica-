@@ -5,6 +5,7 @@ from uuid import UUID
 
 from src.database.config import SessionLocal
 from src.entities.enfermero import Enfermero
+from src.entities.usuario import Usuario
 
 db = SessionLocal()
 
@@ -34,13 +35,16 @@ def crear_enfermero(
     area = area.strip().lower()
     turno = turno.strip().lower()
 
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
+        raise ValueError("El usuario especificado no existe")
+
     if not nombre:
         raise ValueError("El nombre del enfermero no puede estar vacío")
 
     if not telefono:
         raise ValueError("El teléfono del enfermero no puede estar vacío")
 
-    areas_validas = ["pediatría", "geriatría", "urgencias", "cuidados intensivos"]
+    areas_validas = ["pediatria", "geriatria", "urgencias", "cuidados intensivos"]
 
     if area not in areas_validas:
         raise ValueError("El área de trabajo del enfermero no es válida")
@@ -104,6 +108,9 @@ def actualizar_enfermero(
 
     if enfermero is None:
         return None
+
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
+        raise ValueError("El usuario especificado no existe")
 
     campos_validos = {"nombre", "telefono", "area", "turno"}
 

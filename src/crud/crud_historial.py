@@ -3,6 +3,7 @@
 from typing import List, Optional, Text
 from uuid import UUID
 
+from entities.usuario import Usuario
 from src.database.config import SessionLocal
 from src.entities.historial import Historial
 from src.entities.cita import Cita
@@ -41,6 +42,9 @@ def crear_historial(
 
     if not db.query(Enfermero).filter(Enfermero.id_enfermero == id_enfermero).first():
         raise ValueError("El enfermero especificado no existe")
+
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_creacion).first():
+        raise ValueError("El usuario especificado no existe")
 
     diagnostico = diagnostico.strip()
     observaciones_medicas = (
@@ -116,6 +120,9 @@ def actualizar_historial(
     if historial is None:
         return None
 
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion).first():
+        raise ValueError("El usuario especificado no existe")
+
     campos_validos = {
         "diagnostico",
         "observaciones_medicas",
@@ -145,6 +152,8 @@ def actualizar_historial(
 
         if isinstance(value, str):
             value = value.strip()
+            if not value:
+                value = None
 
         setattr(historial, key, value)
 

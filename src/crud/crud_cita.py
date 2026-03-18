@@ -5,6 +5,7 @@ from datetime import timezone
 from typing import List, Optional, Text
 from uuid import UUID
 
+from entities.usuario import Usuario
 from src.database.config import SessionLocal
 from src.entities.cita import Cita
 from src.entities.paciente import Paciente
@@ -71,6 +72,9 @@ def crear_cita(
     if not db.query(Servicio).filter(Servicio.id_servicio == id_servicio).first():
         raise ValueError("El servicio especificado no existe")
 
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_creacion).first():
+        raise ValueError("El usuario especificado no existe")
+
     cita = Cita(
         id_paciente=id_paciente,
         id_medico=id_medico,
@@ -127,6 +131,9 @@ def actualizar_cita(
 
     if cita is None:
         return None
+
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion):
+        raise ValueError("El usuario especificado no existe")
 
     campos_validos = {"fecha_hora", "motivo", "estado"}
     estados_validos = {"pendiente", "confirmada", "cancelada"}
