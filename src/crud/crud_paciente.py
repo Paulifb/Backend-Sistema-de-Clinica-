@@ -66,7 +66,7 @@ def obtener_todos() -> List[Paciente]:
 
 def actualizar(
     id_paciente: UUID,
-    id_usuario_edita: UUID,
+    id_usuario_edicion: UUID,
     **kwargs: dict,
 ) -> Optional[Paciente]:
     paciente = obtener_por_id(id_paciente)
@@ -76,7 +76,10 @@ def actualizar(
     for key, value in kwargs.items():
         setattr(paciente, key, value)
 
-    paciente.id_usuario_edita = id_usuario_edita
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion):
+        raise ValueError("El usuario especificado no existe")
+
+    paciente.id_usuario_edicion = id_usuario_edicion
     db.commit()
     db.refresh(paciente)
 

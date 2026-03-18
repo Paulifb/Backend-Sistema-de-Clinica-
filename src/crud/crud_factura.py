@@ -74,7 +74,9 @@ def obtener_todos() -> List[Factura]:
     return db.query(Factura).all()
 
 
-def actualizar(id_factura: UUID, id_usuario_edita: UUID, **kwargs) -> Optional[Factura]:
+def actualizar(
+    id_factura: UUID, id_usuario_edicion: UUID, **kwargs
+) -> Optional[Factura]:
 
     factura = obtener_por_id(id_factura)
 
@@ -101,9 +103,12 @@ def actualizar(id_factura: UUID, id_usuario_edita: UUID, **kwargs) -> Optional[F
             if value > datetime.now():
                 raise ValueError("La fecha de pago no puede ser futura")
 
+            if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion):
+                raise ValueError("El usuario especificado no existe")
+
         setattr(factura, key, value)
 
-    factura.id_usuario_edita = id_usuario_edita
+    factura.id_usuario_edicion = id_usuario_edicion
 
     db.commit()
     db.refresh(factura)
