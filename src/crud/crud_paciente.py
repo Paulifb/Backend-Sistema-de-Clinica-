@@ -35,6 +35,9 @@ def crear_paciente(
     if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
         raise ValueError("El usuario no existe")
 
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_creacion).first():
+        raise ValueError("El usuario especificado no existe")
+
     paciente = Paciente(
         nombre=nombre.strip(),
         telefono=telefono.strip() if telefono else None,

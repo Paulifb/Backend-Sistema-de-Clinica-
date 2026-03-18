@@ -13,7 +13,6 @@ def crear_eps(
     nombre: str,
     telefono: str,
     direccion: str,
-    id_usuario_creacion: UUID,
     correo: Optional[str] = None,
     ciudad: Optional[str] = None,
 ) -> Eps:
@@ -39,7 +38,6 @@ def crear_eps(
         direccion=direccion.strip(),
         correo=correo.strip() if correo else None,
         ciudad=ciudad.strip() if ciudad else None,
-        id_usuario_creacion=id_usuario_creacion,
     )
 
     db.add(eps)

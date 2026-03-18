@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from src.database.config import SessionLocal
 from src.entities.factura import Factura
 from src.entities.cita import Cita
+from src.entities.usuario import Usuario
 
 db = SessionLocal()
 
@@ -28,6 +29,9 @@ def crear_factura(
 
     if not db.query(Cita).filter(Cita.id_cita == id_cita).first():
         raise ValueError("La cita no existe")
+
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_creacion).first():
+        raise ValueError("El usuario especificado no existe")
 
     estado_pago = estado_pago.strip().capitalize()
 
