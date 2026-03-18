@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, String, ForeignKey, Text
+from sqlalchemy import Column, DateTime, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -31,9 +31,9 @@ class Historial(Base):
 
     diagnostico = Column(String(255), nullable=False)
 
-    observaciones_medicas = Column(Text, nullable=True)
-    indicaciones_enfermeria = Column(Text, nullable=True)
-    observaciones_enfermeria = Column(Text, nullable=True)
+    observaciones_medicas = Column(String(200), nullable=True)
+    indicaciones_enfermeria = Column(String(200), nullable=True)
+    observaciones_enfermeria = Column(String(200), nullable=True)
 
     id_usuario_creacion = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
