@@ -699,7 +699,7 @@ def menu_historial(usuario):
 
         if op == "1":
             for h in historial.obtener_todos():
-                print(h)
+                print(f"{h.id_historial} | {h.diagnostico} | {h.observaciones_medicas}")
 
         elif op == "2":
             id_cita = leer_uuid("Id de la cita: ")
