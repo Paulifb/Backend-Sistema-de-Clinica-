@@ -3,6 +3,7 @@ Punto de entrada: inicio de sesión (o creación del primer usuario)
 y menú CRUD para Categoría, Producto y Pedido.
 """
 
+import datetime
 import sys
 from typing import Optional
 from uuid import UUID
@@ -118,6 +119,167 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
 
         except ValueError as e:
             print("Error:", e)
+
+
+def menu_citas_paciente(usuario):
+    while True:
+        print("\n--- CITAS ---")
+        print(
+            "1. Ver citas  2. Crear cita  3. Actualizar cita  4. Eliminar cita  5. Generar factura  0. Volver"
+        )
+        op = leer_texto("Opción: ")
+
+        if op == "1":
+            citas = cita.obtener_todos()
+            for c in citas:
+                servicios = servicio.obtener_por_id(c.id_servicio)
+                print(f"{c.id_cita} | {servicios.nombre} | {c.fecha_hora} | {c.estado}")
+
+        elif op == "2":
+            print("\n-- Crear cita --")
+
+            id_paciente = leer_uuid("Id paciente: ")
+            if not id_paciente:
+                print("ID inválido")
+                continue
+
+            id_medico = leer_uuid("Id medico: ")
+            if not id_medico:
+                print("ID inválido")
+                continue
+
+            print("\n-- Servicios disponibles --")
+            for s in servicio.obtener_todos():
+                print(f"{s.id_servicio} | {s.nombre}")
+
+            id_servicio = leer_uuid("Id servicio: ")
+            if not id_servicio:
+                print("ID inválido")
+                continue
+
+            fecha = leer_texto("Fecha (YYYY-MM-DD HH:MM): ")
+            motivo = leer_texto("Motivo: ")
+            estado = leer_texto("Estado (pendiente/confirmada/cancelada): ")
+
+            try:
+                fecha_hora = datetime.datetime.strptime(fecha, "%Y-%m-%d %H:%M")
+                fecha_hora = fecha_hora.replace(tzinfo=datetime.timezone.utc)
+
+                cita.crear_cita(
+                    id_paciente=id_paciente,
+                    id_medico=id_medico,
+                    id_servicio=id_servicio,
+                    fecha_hora=fecha_hora,
+                    motivo=motivo,
+                    estado=estado,
+                    id_usuario_creacion=usuario.id_usuario,
+                )
+
+                print("Cita creada")
+
+            except ValueError as e:
+                print("Error:", e)
+
+        elif op == "3":
+            print("\n-- Actualizar cita --")
+
+            id_cita = leer_uuid("Id cita: ")
+            if not id_cita:
+                print("ID inválido")
+                continue
+
+            print("Deja vacío lo que no quieras cambiar")
+
+            nueva_fecha = leer_texto("Nueva fecha (YYYY-MM-DD HH:MM): ")
+            nuevo_motivo = leer_texto("Nuevo motivo: ")
+            nuevo_estado = leer_texto("Nuevo estado: ")
+
+            datos = {}
+
+            if nueva_fecha:
+                try:
+                    fecha_hora = datetime.datetime.strptime(
+                        nueva_fecha, "%Y-%m-%d %H:%M"
+                    )
+                    fecha_hora = fecha_hora.replace(tzinfo=datetime.timezone.utc)
+                    datos["fecha_hora"] = fecha_hora
+                except ValueError:
+                    print("Formato de fecha inválido")
+                    continue
+
+            if nuevo_motivo:
+                datos["motivo"] = nuevo_motivo
+
+            if nuevo_estado:
+                datos["estado"] = nuevo_estado
+
+            try:
+                actualizado = cita.actualizar_cita(
+                    id_cita=id_cita,
+                    id_usuario_edicion=usuario.id_usuario,
+                    **datos,
+                )
+
+                if actualizado:
+                    print("Cita actualizada")
+                else:
+                    print("Cita no encontrada")
+
+            except ValueError as e:
+                print("Error:", e)
+
+        elif op == "4":
+            print("\n-- Generar factura --")
+
+            id_cita = leer_uuid("ID cita: ")
+            if not id_cita:
+                print("ID inválido")
+                continue
+
+            citas = cita.obtener_por_id(id_cita)
+            if not citas:
+                print("La cita no existe")
+                continue
+
+            if citas.id_paciente != usuario.id_usuario:
+                print("No puedes generar factura de esta cita")
+                continue
+
+            facturas = factura.obtener_todos()
+            if any(f.id_cita == id_cita for f in facturas):
+                print("Ya existe factura para esta cita")
+                continue
+
+            servicios = servicio.obtener_por_id(cita.id_servicio)
+
+            if not servicio:
+                print("Servicio no encontrado")
+                continue
+
+            total = servicio.precio
+
+            estado_pago = leer_texto("Estado de pago (Pendiente/Pagado/Cancelado): ")
+            metodo_pago = leer_texto(
+                "Método de pago (Efectivo/Tarjeta/Transferencia): "
+            )
+
+            try:
+                factura.crear_factura(
+                    id_cita=id_cita,
+                    total=total,
+                    estado_pago=estado_pago,
+                    fecha_pago=datetime.now(datetime.timezone.utc),
+                    id_usuario_creacion=usuario.id_usuario,
+                    metodo_pago=metodo_pago if metodo_pago else None,
+                )
+
+                print("Factura generada correctamente")
+
+            except ValueError as e:
+                print("Error:", e)
+
+        elif op == "0":
+            break
 
 
 def menu_medico(usuario):
@@ -378,6 +540,40 @@ def menu_tratamientos(usuario):
 
         elif op == "0":
             break
+
+
+def menu_enfermero(usuario: Usuario) -> None:
+    """Interfaz de consola para operaciones de enfermería."""
+    while True:
+        print("\n--- MODULO ENFERMERO ---")
+        print("1. Listar  2. Registrar  3. Actualizar Historial  0. Volver")
+        op = leer_texto("Opción: ")
+
+        if op == "0":
+            break
+        elif op == "1":
+            for e in enfermero.obtener_todos():
+                print(f"{e.id_enfermero} | {e.nombre} | {e.area}")
+        elif op == "2":
+            try:
+                enfermero.crear_enfermero(
+                    leer_texto("Nombre: "),
+                    leer_texto("Teléfono: "),
+                    leer_texto("Área: "),
+                    leer_texto("Turno: "),
+                    usuario.id_usuario,
+                )
+            except Exception as e:
+                print(f"Error: {e}")
+        elif op == "3":
+            id_h = leer_uuid("ID historial: ")
+            if id_h:
+                try:
+                    historial.actualizar(
+                        id_h, observaciones_enfermeria=leer_texto("Observaciones: ")
+                    )
+                except Exception as e:
+                    print(f"Error: {e}")
 
 
 def main() -> None:
