@@ -5,7 +5,7 @@ from datetime import timezone
 from typing import List, Optional
 from uuid import UUID
 
-from entities.usuario import Usuario
+from src.entities.usuario import Usuario
 from src.database.config import SessionLocal
 from src.entities.cita import Cita
 from src.entities.paciente import Paciente
