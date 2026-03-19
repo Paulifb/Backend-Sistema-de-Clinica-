@@ -47,6 +47,7 @@ def crear_paciente(
         tipo_afiliacion=tipo_afiliacion,
         id_eps=id_eps,
         id_usuario=id_usuario,
+        id_usuario_creacion=id_usuario_creacion,
     )
 
     db.add(paciente)
