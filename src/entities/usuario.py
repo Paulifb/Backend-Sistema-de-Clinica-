@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Optional
 import uuid
 
@@ -62,5 +62,4 @@ class PersonaResponse(PersonaBase):
     fecha_creacion: datetime
     fecha_edicion: Optional[datetime] = None  # type: ignore
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True, "arbitrary_types_allowed": True}

@@ -33,4 +33,4 @@ class Factura(Base):
 
     usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_edicion = relationship("Usuario", foreign_keys=[id_usuario_edicion])
-    citas = relationship("Citas", foreign_keys=[id_cita])
+    citas = relationship("Cita", foreign_keys=[id_cita])
