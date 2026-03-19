@@ -427,10 +427,8 @@ def menu_citas_paciente(usuario):
 
             if nueva_fecha:
                 try:
-                    fecha_hora = datetime.datetime.strptime(
-                        nueva_fecha, "%Y-%m-%d %H:%M"
-                    )
-                    fecha_hora = fecha_hora.replace(tzinfo=datetime.timezone.utc)
+                    fecha_hora = datetime.strptime(nueva_fecha, "%Y-%m-%d %H:%M")
+                    fecha_hora = fecha_hora.replace(tzinfo=timezone.utc)
                     datos["fecha_hora"] = fecha_hora
                 except ValueError:
                     print("Formato de fecha inválido")
@@ -458,6 +456,35 @@ def menu_citas_paciente(usuario):
                 print("Error:", e)
 
         elif op == "4":
+            print("\n-- Eliminar cita --")
+
+            id_cita = leer_uuid("Id cita: ")
+            if not id_cita:
+                print("ID inválido")
+                continue
+
+            cita_obj = cita.obtener_por_id(id_cita)
+            if not cita_obj:
+                print("La cita no existe")
+                continue
+
+            if cita_obj.id_paciente != usuario.id_usuario:
+                print("No puedes eliminar esta cita")
+                continue
+
+            confirmacion = leer_texto("¿Seguro que deseas eliminar la cita? (s/n): ")
+
+            if confirmacion.lower() == "s":
+                eliminado = cita.eliminar_cita(id_cita)
+
+                if eliminado:
+                    print("Cita eliminada correctamente")
+                else:
+                    print("No se pudo eliminar la cita")
+            else:
+                print("Operación cancelada")
+
+        elif op == "5":
             print("\n-- Generar factura --")
 
             id_cita = leer_uuid("ID cita: ")
@@ -465,12 +492,22 @@ def menu_citas_paciente(usuario):
                 print("ID inválido")
                 continue
 
-            citas = cita.obtener_por_id(id_cita)
-            if not citas:
+            cita_obj = cita.obtener_por_id(id_cita)
+            if not cita_obj:
                 print("La cita no existe")
                 continue
 
-            if citas.id_paciente != usuario.id_usuario:
+            paciente_obj = None
+            for p in paciente.obtener_todos():
+                if p.id_usuario == usuario.id_usuario:
+                    paciente_obj = p
+                    break
+
+            if not paciente_obj:
+                print("No tienes perfil de paciente")
+                continue
+
+            if cita_obj.id_paciente != paciente_obj.id_paciente:
                 print("No puedes generar factura de esta cita")
                 continue
 
@@ -479,13 +516,13 @@ def menu_citas_paciente(usuario):
                 print("Ya existe factura para esta cita")
                 continue
 
-            servicios = servicio.obtener_por_id(cita.id_servicio)
+            servicio_obj = servicio.obtener_por_id(cita_obj.id_servicio)
 
-            if not servicio:
+            if not servicio_obj:
                 print("Servicio no encontrado")
                 continue
 
-            total = servicio.precio
+            total = servicio_obj.costo_base
 
             estado_pago = leer_texto("Estado de pago (Pendiente/Pagado/Cancelado): ")
             metodo_pago = leer_texto(
@@ -497,7 +534,7 @@ def menu_citas_paciente(usuario):
                     id_cita=id_cita,
                     total=total,
                     estado_pago=estado_pago,
-                    fecha_pago=datetime.now(datetime.timezone.utc),
+                    fecha_pago=datetime.now(timezone.utc),
                     id_usuario_creacion=usuario.id_usuario,
                     metodo_pago=metodo_pago if metodo_pago else None,
                 )
