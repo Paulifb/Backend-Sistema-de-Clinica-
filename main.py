@@ -269,9 +269,9 @@ def menu_paciente(usuario):
                     print("No se realizaron cambios.")
                     continue
 
-                paciente.actualizar_paciente(
+                paciente.actualizar(
                     id_paciente=paciente_encontrado.id_paciente,
-                    id_usuario_edita=usuario.id_usuario,
+                    id_usuario_edicion=usuario.id_usuario,
                     **datos_actualizar,
                 )
 
@@ -295,7 +295,7 @@ def menu_paciente(usuario):
             confirmacion = leer_texto("¿Seguro que deseas eliminar tu perfil? (s/n): ")
 
             if confirmacion.lower() == "s":
-                eliminado = paciente.eliminar_paciente(paciente_encontrado.id_paciente)
+                eliminado = paciente.eliminar(paciente_encontrado.id_paciente)
 
                 if eliminado:
                     print("Perfil eliminado correctamente.")
