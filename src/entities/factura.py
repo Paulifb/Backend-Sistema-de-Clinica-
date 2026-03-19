@@ -27,10 +27,10 @@ class Factura(Base):
     id_usuario_creacion = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
-    id_usuario_edita = Column(
+    id_usuario_edicion = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
     )
 
     usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
-    usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
+    usuario_edicion = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     citas = relationship("Citas", foreign_keys=[id_cita])
