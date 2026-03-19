@@ -3,7 +3,7 @@ Punto de entrada: inicio de sesión (o creación del primer usuario)
 y menú CRUD para Categoría, Producto y Pedido.
 """
 
-import datetime
+from datetime import datetime, timezone
 import sys
 from typing import Optional
 from uuid import UUID
@@ -98,16 +98,17 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             return None
 
     while True:
-        print("--- Inicio de sesión ---")
+        print("\n1. Iniciar sesión  2. Crear usuario  0. Salir")
+        op = leer_texto("Opción: ")
 
-        email = leer_texto("Correo: ")
-        clave = leer_texto("Contraseña: ")
+        if op == "1":
+            email = leer_texto("Correo: ")
+            clave = leer_texto("Contraseña: ")
 
-        if not email or not clave:
-            print("Campos obligatorios.\n")
-            continue
+            if not email or not clave:
+                print("Campos obligatorios.\n")
+                continue
 
-        try:
             usuario_log = usuario.login_usuario(email, clave)
 
             if usuario_log:
@@ -118,8 +119,28 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             else:
                 print("Correo o contraseña incorrectos.\n")
 
-        except ValueError as e:
-            print("Error:", e)
+        elif op == "2":
+            try:
+                nombre = leer_texto("Nombre completo: ")
+                email = leer_texto("Correo: ")
+                clave = leer_texto("Contraseña: ")
+                rol = leer_texto("Rol (paciente/medico/enfermero): ")
+
+                nuevo = usuario.crear_usuario(
+                    nombre_completo=nombre,
+                    email=email,
+                    clave=clave,
+                    rol=rol,
+                    estado="activo",
+                )
+
+                print(f"Usuario {nuevo.email} creado correctamente.\n")
+
+            except Exception as e:
+                print("Error:", e)
+
+        elif op == "0":
+            return None
 
 
 def menu_paciente(usuario):
@@ -155,7 +176,9 @@ def menu_paciente(usuario):
                     print("Fecha obligatoria")
                     continue
 
-                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d")
+                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d").replace(
+                    tzinfo=timezone.utc
+                )
 
                 nombre_eps = leer_texto("Nombre de la EPS: ")
                 telefono_eps = leer_texto("Teléfono EPS: ")
@@ -748,12 +771,14 @@ def main() -> None:
 
     while True:
         print("\n========== Menú principal ==========")
-        print("1. Continuar  0. Salir")
+        print(
+            "Escribe que opcion de usuario desear accede: 1. paciente 2. medico 3. enfermero  0. Salir"
+        )
 
         op = leer_texto("Opción: ")
 
         if op == "0":
-            print(f"Hasta luego {usuario.nombre_usuario}.")
+            print(f"Hasta luego {usuario.nombre_completo}.")
             break
 
         if usuario.rol == "paciente":
@@ -762,7 +787,7 @@ def main() -> None:
         elif usuario.rol == "medico":
             menu_medico(usuario)
 
-        elif op == "enfermero":
+        elif usuario.rol == "enfermero":
             menu_enfermero(usuario)
 
         else:
