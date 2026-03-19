@@ -10,25 +10,33 @@ db = SessionLocal()
 
 
 def crear_servicio(
-    nombre: str, precio: float, id_usuario: UUID, estado: str = "activo"
+    nombre: str,
+    costo_base: float,
+    id_usuario: UUID,
+    descripcion: Optional[str] = None,
+    duracion_aproximada: Optional[str] = None,
 ) -> Servicio:
-    """Registra un servicio validando precio y estado."""
+    """Registra un servicio validando costo."""
+
     nombre = nombre.strip()
-    estado = estado.strip().lower()
 
     if not nombre:
         raise ValueError("El nombre del servicio es obligatorio")
-    if precio <= 0:
-        raise ValueError("El precio debe ser mayor a cero")
-    if estado not in ["activo", "inactivo"]:
-        raise ValueError("El estado debe ser 'activo' o 'inactivo'")
+
+    if costo_base <= 0:
+        raise ValueError("El costo debe ser mayor a cero")
 
     if not db.query(Usuario).get(id_usuario):
         raise ValueError("Usuario no encontrado")
 
     nuevo = Servicio(
-        nombre=nombre, precio=precio, estado=estado, id_usuario_creacion=id_usuario
+        nombre=nombre,
+        costo_base=costo_base,
+        descripcion=descripcion,
+        duracion_aproximada=duracion_aproximada,
+        id_usuario=id_usuario,
     )
+
     db.add(nuevo)
     db.commit()
     db.refresh(nuevo)
@@ -36,46 +44,52 @@ def crear_servicio(
 
 
 def obtener_por_id(id_servicio: UUID) -> Optional[Servicio]:
-    """Obtiene servicio por ID."""
     return db.query(Servicio).get(id_servicio)
 
 
 def obtener_todos() -> List[Servicio]:
-    """Lista todos los servicios."""
     return db.query(Servicio).all()
 
 
 def actualizar_servicio(
     id_servicio: UUID, id_usuario: UUID, **kwargs
 ) -> Optional[Servicio]:
-    """Actualización dinámica con validación de tipos."""
+
     servicio = obtener_por_id(id_servicio)
-    if not servicio or not db.query(Usuario).get(id_usuario):
+
+    if not servicio:
         return None
 
-    campos_validos = {"nombre", "precio", "estado"}
+    if not db.query(Usuario).get(id_usuario):
+        raise ValueError("Usuario no encontrado")
+
+    campos_validos = {"nombre", "costo_base", "descripcion", "duracion_aproximada"}
+
     for key, value in kwargs.items():
         if key not in campos_validos:
             continue
 
-        if key == "precio" and value <= 0:
-            raise ValueError("Precio inválido")
-        if key == "estado" and value.strip().lower() not in ["activo", "inactivo"]:
-            raise ValueError("Estado inválido")
+        if key == "costo_base" and value <= 0:
+            raise ValueError("Costo inválido")
+
+        if isinstance(value, str):
+            value = value.strip()
 
         setattr(servicio, key, value)
 
-    servicio.id_usuario_edita = id_usuario
+    servicio.id_usuario = id_usuario
+
     db.commit()
     db.refresh(servicio)
     return servicio
 
 
 def eliminar_servicio(id_servicio: UUID) -> bool:
-    """Elimina el servicio de la base de datos."""
     servicio = obtener_por_id(id_servicio)
+
     if servicio:
         db.delete(servicio)
         db.commit()
         return True
+
     return False

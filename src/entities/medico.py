@@ -51,7 +51,6 @@ class Medico(Base):
         doc="Número de registro o licencia médica profesional.",
     )
 
-    # RELACIONES
     usuario = relationship(
         "Usuario", foreign_keys=[id_usuario], doc="Objeto de relación hacia el Usuario."
     )
