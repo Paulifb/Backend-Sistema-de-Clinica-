@@ -1,5 +1,4 @@
 import uuid
-
 from sqlalchemy import Column, String, Text, Float
 from sqlalchemy.dialects.postgresql import UUID
 from src.database.config import Base
