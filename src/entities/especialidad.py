@@ -1,6 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from src.database.config import Base
 
 
@@ -33,6 +34,15 @@ class Especialidad(Base):
         nullable=True,
         doc="Descripción detallada de lo que abarca la especialidad.",
     )
+
+    id_usuario = Column(
+        UUID(as_uuid=True),
+        ForeignKey("usuarios.id_usuario"),
+        nullable=True,
+        doc="ID del usuario que creó o registra la especialidad.",
+    )
+
+    usuario = relationship("Usuario", foreign_keys=[id_usuario])
 
     def __repr__(self):
         """Retorna una representación legible del objeto Especialidad."""

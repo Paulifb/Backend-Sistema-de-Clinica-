@@ -14,17 +14,15 @@ def crear_medico(
     nombre: str,
     id_usuario: UUID,
     id_especialidad: UUID,
-    id_usuario_creacion: UUID,
     telefono: Optional[str] = None,
 ) -> Medico:
     """
-    Registra un nuevo médico en el sistema validando relaciones y datos.
+    Registra un nuevo médico en el sistema.
     """
     nombre = nombre.strip()
     if not nombre:
         raise ValueError("El nombre del médico no puede estar vacío")
 
-    # Validar que existan las llaves foráneas
     if not db.query(Usuario).get(id_usuario):
         raise ValueError("El ID de usuario especificado no existe")
 
@@ -33,9 +31,8 @@ def crear_medico(
 
     nuevo_medico = Medico(
         nombre=nombre,
-        id_usuario=id_usuario,
+        id_usuario=id_usuario,  # Este es el único usuario relacionado
         id_especialidad=id_especialidad,
-        id_usuario_creacion=id_usuario_creacion,
         telefono=telefono,
     )
 
@@ -57,7 +54,7 @@ def obtener_medico_por_id(id_medico: UUID) -> Optional[Medico]:
 
 def actualizar_medico(
     id_medico: UUID,
-    id_usuario_edicion: UUID,
+    id_usuario: UUID,
     **kwargs: dict,
 ) -> Optional[Medico]:
     """
@@ -68,8 +65,7 @@ def actualizar_medico(
     if medico is None:
         return None
 
-    # Validar que el usuario que edita existe
-    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion).first():
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
         raise ValueError("El usuario que realiza la edición no existe")
 
     campos_validos = {"nombre", "telefono", "id_especialidad"}
@@ -90,8 +86,7 @@ def actualizar_medico(
 
         setattr(medico, key, value)
 
-    # Trazabilidad: Actualizamos quién fue el último en editar
-    medico.id_usuario_edita = id_usuario_edicion
+    medico.id_usuario = id_usuario
 
     db.commit()
     db.refresh(medico)
