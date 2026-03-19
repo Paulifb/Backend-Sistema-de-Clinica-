@@ -147,7 +147,7 @@ def menu_paciente(usuario):
     while True:
         print("\n--- PACIENTE ---")
         print(
-            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil  0. Volver"
+            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil 7. Agendar cita 0. Volver"
         )
         op = leer_texto("Opción: ")
 
@@ -303,6 +303,9 @@ def menu_paciente(usuario):
                     print("No se pudo eliminar el perfil.")
             else:
                 print("Operación cancelada.")
+
+        elif op == "7":
+            menu_citas_paciente(usuario)
 
         elif op == "0":
             break
