@@ -1,7 +1,11 @@
+"""
+Punto de entrada: inicio de sesión (o creación del primer usuario)
+y menú CRUD para Categoría, Producto y Pedido.
+"""
+
 import sys
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
 
 sys.path.insert(0, ".")
 
@@ -15,7 +19,6 @@ from src.crud import crud_factura as factura
 from src.crud import crud_historial as historial
 from src.crud import crud_tratamiento as tratamiento
 from src.crud import crud_usuario as usuario
-from src.crud import crud_paciente as paciente
 from src.entities.usuario import Usuario
 
 
@@ -49,6 +52,10 @@ def leer_uuid(mensaje: str) -> Optional[UUID]:
 
 
 def ingresar_o_crear_usuario() -> Optional[Usuario]:
+    """
+    Maneja creación del primer usuario y login.
+    """
+
     if not usuario.hay_usuarios():
         print("\n--- No hay usuarios en el sistema ---")
         print("Crea el primer usuario.\n")
@@ -111,60 +118,6 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
 
         except ValueError as e:
             print("Error:", e)
-
-
-def menu_paciente(usuario_sesion):
-    while True:
-        print("\n--- PACIENTE ---")
-        print(
-            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  0. Volver"
-        )
-        op = leer_texto("Opción: ")
-
-        if op == "1":
-            encontrado = False
-            for p in paciente.obtener_todos():
-                if p.id_usuario == usuario_sesion.id_usuario:
-                    print(f"ID: {p.id_paciente} | Nombre: {p.nombre} | EPS: {p.id_eps}")
-                    encontrado = True
-            if not encontrado:
-                print("No se encontró perfil registrado.")
-
-        elif op == "2":
-            try:
-                nombre = leer_texto("Nombre: ")
-                if not nombre:
-                    print("Nombre obligatorio")
-                    continue
-
-                fecha_nac_str = leer_texto("Fecha nacimiento (AAAA-MM-DD): ")
-                if not fecha_nac_str:
-                    print("Fecha obligatoria")
-                    continue
-
-                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d")
-
-                paciente.crear_paciente(
-                    nombre=nombre,
-                    fecha_nacimiento=fecha_nacimiento,
-                    genero=leer_texto("Género: "),
-                    tipo_afiliacion=leer_texto("Tipo afiliación: "),
-                    id_eps=leer_uuid("ID EPS: "),
-                    id_usuario=usuario_sesion.id_usuario,
-                    id_usuario_creacion=usuario_sesion.id_usuario,
-                    telefono=leer_texto("Teléfono: "),
-                    direccion=leer_texto("Dirección: "),
-                )
-                print("Datos registrados exitosamente.")
-            except Exception as e:
-                print("Error:", e)
-
-        elif op == "3":
-            for p in paciente.obtener_todos():
-                print(f"{p.id_paciente} | {p.nombre} | {p.tipo_afiliacion}")
-
-        elif op == "0":
-            break
 
 
 def menu_medico(usuario):
@@ -345,7 +298,7 @@ def menu_historial(usuario):
                 print("Historial no encontrado")
 
         elif op == "5":
-            menu_tratamientos(usuario)
+            menu_tratamientos()
 
         elif op == "0":
             break
@@ -427,21 +380,9 @@ def menu_tratamientos(usuario):
             break
 
 
-def menu_enfermero(usuario):
-    while True:
-        print("\n--- ENFERMERO ---")
-        print("1. Ver historiales  0. Volver")
-        op = leer_texto("Opción: ")
-        if op == "1":
-            for h in historial.obtener_todos():
-                print(h)
-        elif op == "0":
-            break
-
-
 def main() -> None:
-    usuario_log = ingresar_o_crear_usuario()
-    if not usuario_log:
+    usuario = ingresar_o_crear_usuario()
+    if not usuario:
         print("No se pudo iniciar sesión. Saliendo.")
         return
 
@@ -452,18 +393,17 @@ def main() -> None:
         op = leer_texto("Opción: ")
 
         if op == "0":
-            print(f"Hasta luego {usuario_log.nombre_completo}.")
+            print(f"Hasta luego {usuario.nombre_usuario}.")
             break
 
-        if op == "1":
-            if usuario_log.rol == "paciente":
-                menu_paciente(usuario_log)
+        if usuario.rol == "paciente":
+            menu_paciente(usuario)
 
-            elif usuario_log.rol == "medico":
-                menu_medico(usuario_log)
+        elif usuario.rol == "medico":
+            menu_medico(usuario)
 
-            elif usuario_log.rol == "enfermero":
-                menu_enfermero(usuario_log)
+        elif op == "enfermero":
+            menu_enfermero(usuario)
 
         else:
             print("Opción no válida.")
