@@ -1,165 +1,196 @@
-🏥 Sistema de Gestión de Citas Médicas
+🏥 Sistema de Gestión Clínica (CLI)
+
+Sistema backend desarrollado en Python para la gestión de una clínica mediante una interfaz de consola (CLI). Permite manejar usuarios con distintos roles (paciente, médico, enfermero) y administrar citas, historiales médicos, tratamientos, facturación y más.
+
 📌 Descripción
 
-El Sistema de Gestión de Citas Médicas es una aplicación desarrollada en Python que permite administrar el registro de pacientes, médicos, enfermeros, citas médicas y facturación dentro de una clínica.
+Este sistema simula el funcionamiento de una clínica real, integrando múltiples módulos que interactúan entre sí:
 
-El sistema está basado en Programación Orientada a Objetos (POO), aplicando principios como encapsulamiento, tipado, composición y uso de estructuras dinámicas (listas).
+Autenticación de usuarios
 
-🎯 Objetivo del Proyecto
+Gestión de pacientes
 
-Desarrollar un sistema que permita:
+Gestión de médicos y especialidades
 
-Registrar pacientes y profesionales de la salud.
+Agendamiento de citas
 
-Agendar y reprogramar citas médicas.
+Historial clínico
 
-Gestionar asistencia de enfermería.
+Tratamientos médicos
 
-Generar facturas.
+Facturación
 
-Consultar información relevante del sistema.
+Gestión de EPS
 
-🏗️ Arquitectura del Sistema
+Todo el flujo se maneja desde consola mediante menús interactivos según el rol del usuario.
 
-El sistema está compuesto por 5 entidades principales:
+👥 Roles del sistema
+🧑‍🦱 Paciente
 
-1️⃣ Paciente
+Ver y actualizar su perfil
 
-Representa a una persona que recibe atención médica.
+Registrar sus datos
 
-Responsabilidades:
+Consultar EPS
 
-Almacenar información personal.
+Agendar, actualizar y eliminar citas
 
-Proveer datos para citas y facturación.
+Generar facturas
 
-2️⃣ Médico
+🧑‍⚕️ Médico
 
-Representa a un profesional de la salud encargado de diagnosticar pacientes.
+Ver citas asignadas
 
-Responsabilidades:
+Gestionar historial médico
 
-Emitir diagnósticos.
+Registrar, actualizar y eliminar médicos
 
-Atender citas médicas.
+Gestionar especialidades
 
-3️⃣ Enfermero
+👩‍⚕️ Enfermero
 
-Representa al profesional encargado de la asistencia médica básica.
+Registrar enfermeros
 
-Responsabilidades:
+Consultar enfermeros
 
-Administrar medicamentos.
+Actualizar observaciones en historial clínico
 
-Brindar apoyo clínico.
+⚙️ Funcionalidades principales
 
-4️⃣ Cita
+🔐 Login y registro de usuarios con roles
 
-Relaciona un paciente con un profesional en una fecha y hora específica.
+📅 CRUD completo de citas
 
-Responsabilidades:
+📋 CRUD de historial médico
 
-Programar citas.
+💊 Gestión de tratamientos
 
-Reprogramar citas.
+🧾 Generación de facturas
 
-Mostrar información detallada.
+🏥 Gestión de EPS
 
-Asociar paciente y profesional.
+👨‍⚕️ Relación médico–especialidad
 
-Utiliza el módulo datetime para manejar fechas correctamente.
+🧑‍🦱 Relación paciente–usuario
 
-5️⃣ Factura
+🧠 Tecnologías utilizadas
 
-Representa el proceso de cobro por servicios médicos.
+Python
 
-Responsabilidades:
+SQLAlchemy (ORM)
 
-Generar factura asociada a una cita.
+PostgreSQL (Neon DB)
 
-Mostrar información de pago.
+UUID para identificación única
 
-⚙️ Funcionalidades del Sistema
+Arquitectura modular (CRUD + Entities)
 
-El menú principal permite:
-
-Registrar paciente
-
-Registrar médico
-
-Registrar enfermero
-
-Agendar cita
-
-Mostrar información de citas
-
-Reprogramar cita
-
-Asistencia de enfermería
-
-Información del profesional
-
-Recibir diagnóstico del doctor
-
-Mostrar información del paciente
-
-Tramitar factura
-
-Salir del sistema
-
-🧠 Conceptos de POO Aplicados
-
-✔ Encapsulamiento mediante atributos privados.
-
-✔ Uso de @property.
-
-✔ Composición (una cita contiene un paciente y un profesional).
-
-✔ Tipado estático con anotaciones.
-
-✔ Validación de datos.
-
-✔ Manejo de fechas con datetime.
-
-🗂️ Estructura del Proyecto
+📂 Estructura del proyecto
 src/
- ├── entities/
- │    ├── Pacientes.py
- │    ├── medicos.py
- │    ├── enfermeros.py
- │    ├── cita.py
- │    ├── factura.py
- │
- └── main.py
-🚀 Cómo Ejecutar el Proyecto
+│
+├── database/
+│   └── config.py
+│
+├── entities/              # Modelos de base de datos
+│   ├── usuario.py
+│   ├── paciente.py
+│   ├── medico.py
+│   ├── cita.py
+│   ├── historial.py
+│   ├── tratamiento.py
+│   ├── eps.py
+│   ├── enfermero.py
+│   └── factura.py
+│
+├── crud/                  # Lógica de negocio
+│   ├── crud_usuario.py
+│   ├── crud_paciente.py
+│   ├── crud_medico.py
+│   ├── crud_cita.py
+│   ├── crud_historial.py
+│   ├── crud_tratamiento.py
+│   ├── crud_eps.py
+│   ├── crud_enfermero.py
+│   └── crud_factura.py
+│
+└── main.py                # Interfaz de consola (CLI)
+🚀 Ejecución del proyecto
 
-Clonar el repositorio.
+Clonar repositorio:
 
-Asegurarse de tener Python 3.10 o superior.
+git clone <URL_DEL_REPO>
+cd <NOMBRE_PROYECTO>
+
+Crear entorno virtual:
+
+python -m venv venv
+venv\Scripts\activate  # Windows
+
+Instalar dependencias:
+
+pip install -r requirements.txt
+
+Configurar base de datos (.env):
+
+DATABASE_URL=postgresql://user:password@host/db
 
 Ejecutar:
 
 python main.py
-🔒 Validaciones Implementadas
+🧩 Flujo del sistema
 
-No se pueden agendar citas sin paciente.
+Si no existen usuarios → se crea el primero
 
-No se pueden agendar citas sin profesional.
+Login del usuario
 
-No se pueden reprogramar citas inexistentes.
+Acceso al sistema según rol:
 
-Conversión segura de fechas mediante datetime.strptime.
+Paciente → menú de paciente
 
-📈 Posibles Mejoras Futuras
+Médico → menú de médico
 
-Persistencia de datos en archivos o base de datos.
+Enfermero → menú de enfermería
 
-Validación de disponibilidad del profesional.
+📊 Presentación del proyecto
 
-Historial médico del paciente.
+Puedes ver la presentación aquí:
 
-Interfaz gráfica.
+👉 https://www.canva.com/design/DAHEaazGp9A/znY5bCsAEHZoLc5cEYlbPA/edit?utm_content=DAHEaazGp9A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
-Manejo de múltiples sedes.
+🧪 Validaciones implementadas
 
-Sistema de autenticación.
+Verificación de UUID
+
+Campos obligatorios
+
+Validación de formatos de fecha
+
+Control de duplicados (facturas, EPS, etc.)
+
+Restricción de acciones según usuario
+
+📌 Notas técnicas
+
+El sistema utiliza datetime con zona horaria UTC
+
+Las relaciones entre entidades están normalizadas
+
+Separación en capas:
+
+entidades (modelo)
+
+lógica (CRUD)
+
+interfaz (main)
+
+💡 Posibles mejoras
+
+Interfaz gráfica (GUI o web con Flask/Django)
+
+Autenticación con tokens (JWT)
+
+Control de permisos más robusto
+
+API REST
+
+Reportes y estadísticas
