@@ -271,7 +271,7 @@ def menu_paciente(usuario):
 
                 paciente.actualizar(
                     id_paciente=paciente_encontrado.id_paciente,
-                    id_usuario_edicion=usuario.id_usuario,
+                    id_usuario=usuario.id_usuario,
                     **datos_actualizar,
                 )
 
@@ -339,21 +339,60 @@ def menu_citas_paciente(usuario):
                 continue
 
             print("\n-- Servicios disponibles --")
-            for s in servicio.obtener_todos():
-                print(f"{s.id_servicio} | {s.nombre}")
+            lista_servicios = servicio.obtener_todos()
 
-            id_servicio = leer_uuid("Id servicio: ")
-            if not id_servicio:
-                print("ID inválido")
+            for s in lista_servicios:
+                print(f"{s.id_servicio} | {s.nombre} | ${s.costo_base}")
+
+            nombre_servicio = (
+                leer_texto("Servicio (si no existe, se creará): ").strip().lower()
+            )
+
+            if not nombre_servicio:
+                print("Campo obligatorio")
                 continue
+
+            servicio_encontrado = None
+            for s in lista_servicios:
+                if s.nombre.lower() == nombre_servicio:
+                    servicio_encontrado = s
+                    break
+
+            if not servicio_encontrado:
+                try:
+                    costo = leer_float("Costo del nuevo servicio: ")
+                    if costo <= 0:
+                        print("Costo inválido")
+                        continue
+
+                    descripcion = leer_texto("Descripción (opcional): ")
+                    duracion = leer_texto("Duración (ej: 30 min) (opcional): ")
+
+                    servicio_encontrado = servicio.crear_servicio(
+                        nombre=nombre_servicio,
+                        costo_base=costo,
+                        id_usuario=usuario.id_usuario,
+                        descripcion=descripcion if descripcion else None,
+                        duracion_aproximada=duracion if duracion else None,
+                    )
+
+                    print(
+                        f"Servicio '{servicio_encontrado.nombre}' creado con costo ${costo}."
+                    )
+
+                except ValueError as e:
+                    print("Error:", e)
+                    continue
+
+            id_servicio = servicio_encontrado.id_servicio
 
             fecha = leer_texto("Fecha (YYYY-MM-DD HH:MM): ")
             motivo = leer_texto("Motivo: ")
             estado = leer_texto("Estado (pendiente/confirmada/cancelada): ")
 
             try:
-                fecha_hora = datetime.datetime.strptime(fecha, "%Y-%m-%d %H:%M")
-                fecha_hora = fecha_hora.replace(tzinfo=datetime.timezone.utc)
+                fecha_hora = datetime.strptime(fecha, "%Y-%m-%d %H:%M")
+                fecha_hora = fecha_hora.replace(tzinfo=timezone.utc)
 
                 cita.crear_cita(
                     id_paciente=id_paciente,
@@ -497,26 +536,54 @@ def menu_medico(usuario):
                 print(f"{m.id_medico} | {espe.nombre}")
 
         elif op == "4":
-            print("\n-- Especialidades--")
-            for e in especialidad.obtener_todas():
-                print(f"{e.id_especialidad} | {e.nombre}")
-
-            id_usuario = leer_uuid("Id usuario: ")
-            if not id_usuario:
-                print("ID inválido")
-                continue
-
-            id_especialidad = leer_uuid("Id especialidad: ")
-            if not id_especialidad:
-                print("ID inválido")
-                continue
-
             try:
+                nombre_medico = leer_texto("Nombre del médico: ")
+                if not nombre_medico:
+                    print("Nombre obligatorio")
+                    continue
+
+                id_usuario = leer_uuid("Id usuario: ")
+                if not id_usuario:
+                    print("ID de usuario inválido")
+                    continue
+
+                lista_especialidades = especialidad.obtener_todas()
+                print("\n-- Especialidades disponibles --")
+                for e in lista_especialidades:
+                    print(f"{e.id_especialidad} | {e.nombre}")
+
+                nombre_espe = leer_texto("Nombre de la especialidad: ")
+                if not nombre_espe:
+                    print("Especialidad obligatoria")
+                    continue
+
+                espe_encontrada = None
+                for e in lista_especialidades:
+                    if e.nombre.lower() == nombre_espe.lower():
+                        espe_encontrada = e
+                        break
+
+                if not espe_encontrada:
+                    descripcion = leer_texto(
+                        "Descripción de la especialidad (opcional): "
+                    )
+                    espe_encontrada = especialidad.crear_especialidad(
+                        nombre=nombre_espe,
+                        id_usuario=id_usuario,
+                        descripcion=descripcion if descripcion else None,
+                    )
+                    print(f"Especialidad '{espe_encontrada.nombre}' creada.")
+
+                telefono_medico = leer_texto("Teléfono (opcional): ")
+
                 medico.crear_medico(
+                    nombre=nombre_medico,
                     id_usuario=id_usuario,
-                    id_especialidad=id_especialidad,
+                    id_especialidad=espe_encontrada.id_especialidad,
+                    telefono=telefono_medico if telefono_medico else None,
                 )
-                print("Médico creado")
+
+                print("Médico creado exitosamente.")
 
             except ValueError as e:
                 print("Error:", e)
@@ -532,14 +599,32 @@ def menu_medico(usuario):
             for e in especialidad.obtener_todas():
                 print(f"{e.id_especialidad} | {e.nombre}")
 
-            id_especialidad = leer_uuid("Nueva especialidad: ")
-            if not id_especialidad:
-                print("ID inválido")
+            nombre_espe = leer_texto("Nueva especialidad: ")
+            if not nombre_espe:
+                print("Campo obligatorio")
                 continue
+
+            espe_encontrada = None
+            for e in especialidad.obtener_todas():
+                if e.nombre.lower() == nombre_espe.lower():
+                    espe_encontrada = e
+                    break
+
+            if not espe_encontrada:
+                try:
+                    espe_encontrada = especialidad.crear_especialidad(
+                        nombre=nombre_espe, id_usuario=usuario.id_usuario
+                    )
+                    print(f"Especialidad '{espe_encontrada.nombre}' creada.")
+                except ValueError as e:
+                    print("Error:", e)
+                    continue
 
             try:
                 actualizado = medico.actualizar_medico(
-                    id_medico, id_especialidad=id_especialidad
+                    id_medico,
+                    id_usuario=usuario.id_usuario,
+                    id_especialidad=espe_encontrada.id_especialidad,
                 )
 
                 if actualizado:
@@ -753,17 +838,29 @@ def menu_enfermero(usuario: Usuario) -> None:
                     leer_texto("Turno: "),
                     usuario.id_usuario,
                 )
+
+                print("Enfermero creado")
+
             except Exception as e:
                 print(f"Error: {e}")
+
         elif op == "3":
             id_h = leer_uuid("ID historial: ")
-            if id_h:
-                try:
-                    historial.actualizar(
-                        id_h, observaciones_enfermeria=leer_texto("Observaciones: ")
-                    )
-                except Exception as e:
-                    print(f"Error: {e}")
+
+            if not id_h:
+                print("ID inválido")
+                continue
+
+            try:
+                historial.actualizar_historial(
+                    id_historial=id_h,
+                    id_usuario_edicion=usuario.id_usuario,
+                    observaciones_enfermeria=leer_texto("Observaciones: "),
+                )
+                print("Historial actualizado")
+
+            except Exception as e:
+                print(f"Error: {e}")
 
 
 def main() -> None:
