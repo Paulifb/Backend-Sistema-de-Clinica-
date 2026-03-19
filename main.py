@@ -3,7 +3,7 @@ Punto de entrada: inicio de sesión (o creación del primer usuario)
 y menú CRUD para Categoría, Producto y Pedido.
 """
 
-import datetime
+from datetime import datetime, timezone
 import sys
 from typing import Optional
 from uuid import UUID
@@ -98,16 +98,17 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             return None
 
     while True:
-        print("--- Inicio de sesión ---")
+        print("\n1. Iniciar sesión  2. Crear usuario  0. Salir")
+        op = leer_texto("Opción: ")
 
-        email = leer_texto("Correo: ")
-        clave = leer_texto("Contraseña: ")
+        if op == "1":
+            email = leer_texto("Correo: ")
+            clave = leer_texto("Contraseña: ")
 
-        if not email or not clave:
-            print("Campos obligatorios.\n")
-            continue
+            if not email or not clave:
+                print("Campos obligatorios.\n")
+                continue
 
-        try:
             usuario_log = usuario.login_usuario(email, clave)
 
             if usuario_log:
@@ -118,15 +119,35 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             else:
                 print("Correo o contraseña incorrectos.\n")
 
-        except ValueError as e:
-            print("Error:", e)
+        elif op == "2":
+            try:
+                nombre = leer_texto("Nombre completo: ")
+                email = leer_texto("Correo: ")
+                clave = leer_texto("Contraseña: ")
+                rol = leer_texto("Rol (paciente/medico/enfermero): ")
+
+                nuevo = usuario.crear_usuario(
+                    nombre_completo=nombre,
+                    email=email,
+                    clave=clave,
+                    rol=rol,
+                    estado="activo",
+                )
+
+                print(f"Usuario {nuevo.email} creado correctamente.\n")
+
+            except Exception as e:
+                print("Error:", e)
+
+        elif op == "0":
+            return None
 
 
 def menu_paciente(usuario):
     while True:
         print("\n--- PACIENTE ---")
         print(
-            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil  0. Volver"
+            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil 7. Agendar cita 0. Volver"
         )
         op = leer_texto("Opción: ")
 
@@ -155,7 +176,9 @@ def menu_paciente(usuario):
                     print("Fecha obligatoria")
                     continue
 
-                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d")
+                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d").replace(
+                    tzinfo=timezone.utc
+                )
 
                 nombre_eps = leer_texto("Nombre de la EPS: ")
                 telefono_eps = leer_texto("Teléfono EPS: ")
@@ -246,9 +269,9 @@ def menu_paciente(usuario):
                     print("No se realizaron cambios.")
                     continue
 
-                paciente.actualizar_paciente(
+                paciente.actualizar(
                     id_paciente=paciente_encontrado.id_paciente,
-                    id_usuario_edita=usuario.id_usuario,
+                    id_usuario_edicion=usuario.id_usuario,
                     **datos_actualizar,
                 )
 
@@ -272,7 +295,7 @@ def menu_paciente(usuario):
             confirmacion = leer_texto("¿Seguro que deseas eliminar tu perfil? (s/n): ")
 
             if confirmacion.lower() == "s":
-                eliminado = paciente.eliminar_paciente(paciente_encontrado.id_paciente)
+                eliminado = paciente.eliminar(paciente_encontrado.id_paciente)
 
                 if eliminado:
                     print("Perfil eliminado correctamente.")
@@ -280,6 +303,9 @@ def menu_paciente(usuario):
                     print("No se pudo eliminar el perfil.")
             else:
                 print("Operación cancelada.")
+
+        elif op == "7":
+            menu_citas_paciente(usuario)
 
         elif op == "0":
             break
@@ -748,12 +774,14 @@ def main() -> None:
 
     while True:
         print("\n========== Menú principal ==========")
-        print("1. Continuar  0. Salir")
+        print(
+            "Escribe que opcion de usuario desear accede: 1. paciente 2. medico 3. enfermero  0. Salir"
+        )
 
         op = leer_texto("Opción: ")
 
         if op == "0":
-            print(f"Hasta luego {usuario.nombre_usuario}.")
+            print(f"Hasta luego {usuario.nombre_completo}.")
             break
 
         if usuario.rol == "paciente":
@@ -762,7 +790,7 @@ def main() -> None:
         elif usuario.rol == "medico":
             menu_medico(usuario)
 
-        elif op == "enfermero":
+        elif usuario.rol == "enfermero":
             menu_enfermero(usuario)
 
         else:
