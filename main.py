@@ -699,7 +699,7 @@ def menu_historial(usuario):
 
         if op == "1":
             for h in historial.obtener_todos():
-                print(h)
+                print(f"{h.id_historial} | {h.diagnostico} | {h.observaciones_medicas}")
 
         elif op == "2":
             id_cita = leer_uuid("Id de la cita: ")
@@ -772,7 +772,7 @@ def menu_historial(usuario):
                 print("Historial no encontrado")
 
         elif op == "5":
-            menu_tratamientos()
+            menu_tratamientos(usuario)
 
         elif op == "0":
             break
@@ -780,13 +780,21 @@ def menu_historial(usuario):
 
 def menu_tratamientos(usuario):
     while True:
-        print("\n--- Historial Medico ---")
+        print("\n--- TRATAMIENTOS ---")
         print("1. Ver  2. Crear tratamiento  3. Editar  4. Eliminar 0. Volver")
         op = leer_texto("Opción: ")
 
         if op == "1":
-            for t in tratamiento.obtener_todos():
-                print(t)
+            lista = tratamiento.obtener_todos()
+
+            if not lista:
+                print("No hay tratamientos registrados")
+                continue
+
+            for t in lista:
+                print(
+                    f"{t.id_tratamiento} | {t.id_historial} | {t.nombre_tratamiento} | {t.dosis} | {t.duracion} | {t.descripcion}"
+                )
 
         elif op == "2":
             id_historial = leer_uuid("Id historial medico: ")
@@ -800,15 +808,27 @@ def menu_tratamientos(usuario):
                 print("Campo obligatorio")
                 continue
 
+            dosis = leer_texto("Dosis: ")
+            if not dosis:
+                print("Campo obligatorio")
+                continue
+
+            duracion = leer_int("Duración (días): ")
+            if duracion <= 0:
+                print("Duración inválida")
+                continue
+
+            descripcion = leer_texto("Descripción (opcional): ")
+
             try:
                 tratamiento.crear(
                     id_historial=id_historial,
                     nombre_tratamiento=nombre,
-                    dosis=leer_texto("Dosis: "),
-                    duracion=leer_texto("Duración: "),
+                    dosis=dosis,
+                    duracion=duracion,
+                    descripcion=descripcion if descripcion else None,
                 )
                 print("Tratamiento creado")
-
             except ValueError as e:
                 print("Error:", e)
 
@@ -818,22 +838,43 @@ def menu_tratamientos(usuario):
                 print("ID inválido")
                 continue
 
-            nombre = leer_texto("Nuevo nombre: ")
-            if not nombre:
-                print("Campo obligatorio")
+            nuevo_nombre = leer_texto("Nuevo nombre: ")
+            nueva_dosis = leer_texto("Nueva dosis: ")
+            nueva_duracion = leer_texto("Nueva duración (días): ")
+
+            datos = {}
+
+            if nuevo_nombre:
+                datos["nombre_tratamiento"] = nuevo_nombre
+
+            if nueva_dosis:
+                datos["dosis"] = nueva_dosis
+
+            if nueva_duracion:
+                try:
+                    duracion_int = int(nueva_duracion)
+                    if duracion_int <= 0:
+                        print("Duración inválida")
+                        continue
+                    datos["duracion"] = duracion_int
+                except ValueError:
+                    print("Duración debe ser un número")
+                    continue
+
+            if not datos:
+                print("No se realizaron cambios")
                 continue
 
             try:
                 actualizado = tratamiento.actualizar(
                     id_tratamiento=id_tratamiento,
-                    nombre_tratamiento=nombre,
+                    **datos,
                 )
 
                 if actualizado:
                     print("Tratamiento actualizado")
                 else:
                     print("Tratamiento no encontrado")
-
             except ValueError as e:
                 print("Error:", e)
 
@@ -843,12 +884,17 @@ def menu_tratamientos(usuario):
                 print("ID inválido")
                 continue
 
-            eliminado = tratamiento.eliminar(id_tratamiento)
+            confirmacion = leer_texto("¿Seguro que deseas eliminar? (s/n): ")
 
-            if eliminado:
-                print("Tratamiento eliminado")
+            if confirmacion.lower() == "s":
+                eliminado = tratamiento.eliminar(id_tratamiento)
+
+                if eliminado:
+                    print("Tratamiento eliminado")
+                else:
+                    print("Tratamiento no encontrado")
             else:
-                print("Tratamiento no encontrado")
+                print("Operación cancelada")
 
         elif op == "0":
             break
