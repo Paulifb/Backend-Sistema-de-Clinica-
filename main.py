@@ -271,7 +271,7 @@ def menu_paciente(usuario):
 
                 paciente.actualizar(
                     id_paciente=paciente_encontrado.id_paciente,
-                    id_usuario=usuario.id_usuario,
+                    id_usuario_edicion=usuario.id_usuario,
                     **datos_actualizar,
                 )
 
