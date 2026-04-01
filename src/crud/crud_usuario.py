@@ -7,10 +7,9 @@ import hashlib
 from typing import List, Optional
 from uuid import UUID
 
-from src.database.config import SessionLocal
-from src.entities.usuario import Usuario
+from sqlalchemy.orm import Session
 
-db = SessionLocal()
+from src.entities.usuario import Usuario
 
 
 def _hash_clave(clave: str) -> str:
@@ -27,6 +26,7 @@ def _hash_clave(clave: str) -> str:
 
 
 def crear_usuario(
+    db: Session,
     nombre_completo: str,
     email: str,
     clave: str,
@@ -85,7 +85,7 @@ def crear_usuario(
     return usuario
 
 
-def login_usuario(email: str, clave: str) -> Optional[Usuario]:
+def login_usuario(db: Session, email: str, clave: str) -> Optional[Usuario]:
     """
     Verifica las credenciales de un usuario para iniciar sesión.
 
@@ -97,7 +97,7 @@ def login_usuario(email: str, clave: str) -> Optional[Usuario]:
         El usuario si las credenciales son correctas, o None si son incorrectas.
     """
 
-    usuario = obtener_por_email(email)
+    usuario = obtener_por_email(db, email)
 
     if not usuario:
         return None
@@ -111,7 +111,7 @@ def login_usuario(email: str, clave: str) -> Optional[Usuario]:
     return usuario
 
 
-def obtener_por_id(id_usuario: UUID) -> Optional[Usuario]:
+def obtener_por_id(db: Session, id_usuario: UUID) -> Optional[Usuario]:
     """
     Obtiene un usuario por su identificador.
     """
@@ -119,7 +119,7 @@ def obtener_por_id(id_usuario: UUID) -> Optional[Usuario]:
     return db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
 
 
-def obtener_por_email(email: str) -> Optional[Usuario]:
+def obtener_por_email(db: Session, email: str) -> Optional[Usuario]:
     """
     Obtiene un usuario por su correo electrónico.
     """
@@ -129,15 +129,15 @@ def obtener_por_email(email: str) -> Optional[Usuario]:
     return db.query(Usuario).filter(Usuario.email == email).first()
 
 
-def obtener_todos() -> List[Usuario]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Usuario]:
     """
     Obtiene todos los usuarios.
     """
 
-    return db.query(Usuario).all()
+    return db.query(Usuario).offset(skip).limit(limit).all()
 
 
-def hay_usuarios() -> bool:
+def hay_usuarios(db: Session) -> bool:
     """
     Verifica si hay usuarios registrados.
     """
@@ -146,6 +146,7 @@ def hay_usuarios() -> bool:
 
 
 def actualizar_usuario(
+    db: Session,
     id_usuario: UUID,
     **kwargs: dict,
 ) -> Optional[Usuario]:
@@ -160,7 +161,7 @@ def actualizar_usuario(
         El usuario actualizado o None si el usuario no existe.
     """
 
-    usuario = obtener_por_id(id_usuario)
+    usuario = obtener_por_id(db, id_usuario)
 
     if not usuario:
         return None
@@ -201,12 +202,12 @@ def actualizar_usuario(
     return usuario
 
 
-def eliminar_usuario(id_usuario: UUID) -> bool:
+def eliminar_usuario(db: Session, id_usuario: UUID) -> bool:
     """
     Elimina un usuario por su identificador.
     """
 
-    usuario = obtener_por_id(id_usuario)
+    usuario = obtener_por_id(db, id_usuario)
 
     if usuario:
         db.delete(usuario)

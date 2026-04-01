@@ -1,25 +1,24 @@
 """CRUD para Cita (con trazabilidad)"""
 
-import datetime
-from datetime import timezone
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy.orm import Session
+
 from src.entities.usuario import Usuario
-from src.database.config import SessionLocal
 from src.entities.cita import Cita
 from src.entities.paciente import Paciente
 from src.entities.servicio import Servicio
 from src.entities.medico import Medico
 
-db = SessionLocal()
-
 
 def crear_cita(
+    db: Session,
     id_paciente: UUID,
     id_medico: UUID,
     id_servicio: UUID,
-    fecha_hora: datetime.datetime,
+    fecha_hora: datetime,
     motivo: str,
     estado: str,
     id_usuario_creacion: UUID,
@@ -41,12 +40,12 @@ def crear_cita(
     """
 
     motivo = motivo.strip()
-    estado = estado.strip().lower()
+    estado = estado.strip().lower() if estado else "pendiente"
 
     if not motivo:
         raise ValueError("El motivo de la consulta no puede estar vacío")
 
-    if fecha_hora < datetime.datetime.now(timezone.utc):
+    if fecha_hora < datetime.now(timezone.utc):
         raise ValueError("La fecha y hora de la cita no pueden ser en el pasado")
 
     estados_validos = ["pendiente", "confirmada", "cancelada"]
@@ -91,7 +90,7 @@ def crear_cita(
     return cita
 
 
-def obtener_por_id(id_cita: UUID) -> Optional[Cita]:
+def obtener_por_id(db: Session, id_cita: UUID) -> Optional[Cita]:
     """
     Obtiene una cita por su identificador.
     """
@@ -99,7 +98,7 @@ def obtener_por_id(id_cita: UUID) -> Optional[Cita]:
     return db.query(Cita).filter(Cita.id_cita == id_cita).first()
 
 
-def obtener_todos(skip: int = 0, limit: int = 100) -> List[Cita]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Cita]:
     """
     Obtiene todas las citas con paginación.
     """
@@ -108,6 +107,7 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Cita]:
 
 
 def actualizar_cita(
+    db: Session,
     id_cita: UUID,
     id_usuario_edicion: UUID,
     **kwargs: dict,
@@ -127,12 +127,12 @@ def actualizar_cita(
         La cita actualizada o None si la cita no existe.
     """
 
-    cita = obtener_por_id(id_cita)
+    cita = obtener_por_id(db, id_cita)
 
     if cita is None:
         return None
 
-    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion):
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion).first():
         raise ValueError("El usuario especificado no existe")
 
     campos_validos = {"fecha_hora", "motivo", "estado"}
@@ -154,7 +154,7 @@ def actualizar_cita(
             raise ValueError("El motivo de la consulta no puede estar vacío")
 
         if key == "fecha_hora":
-            if value < datetime.datetime.now(timezone.utc):
+            if value < datetime.now(timezone.utc):
                 raise ValueError(
                     "La fecha y hora de la cita no pueden ser en el pasado"
                 )
@@ -176,12 +176,12 @@ def actualizar_cita(
     return cita
 
 
-def eliminar_cita(id_cita: UUID) -> bool:
+def eliminar_cita(db: Session, id_cita: UUID) -> bool:
     """
     Elimina una cita por su identificador.
     """
 
-    cita = obtener_por_id(id_cita)
+    cita = obtener_por_id(db, id_cita)
 
     if cita:
         db.delete(cita)
