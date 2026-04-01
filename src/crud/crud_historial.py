@@ -16,9 +16,9 @@ def crear_historial(
     id_cita: UUID,
     id_enfermero: UUID,
     diagnostico: str,
-    observaciones_medicas: str,
-    indicaciones_enfermeria: str,
-    observaciones_enfermeria: str,
+    observaciones_medicas: Optional[str],
+    indicaciones_enfermeria: Optional[str],
+    observaciones_enfermeria: Optional[str],
     id_usuario_creacion: UUID,
 ) -> Historial:
     """

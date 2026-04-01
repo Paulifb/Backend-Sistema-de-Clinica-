@@ -87,7 +87,7 @@ def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Enfermer
 def actualizar_enfermero(
     db: Session,
     id_enfermero: UUID,
-    id_usuario: UUID,
+    id_usuario: Optional[UUID] = None,
     **kwargs: dict,
 ) -> Optional[Enfermero]:
     """
@@ -109,9 +109,6 @@ def actualizar_enfermero(
 
     if enfermero is None:
         return None
-
-    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
-        raise ValueError("El usuario especificado no existe")
 
     campos_validos = {"nombre", "telefono", "area", "turno"}
 
@@ -137,7 +134,11 @@ def actualizar_enfermero(
 
         setattr(enfermero, key, value)
 
-    enfermero.id_usuario = id_usuario
+    if id_usuario is not None:
+        if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
+            raise ValueError("El usuario especificado no existe")
+
+        enfermero.id_usuario = id_usuario
 
     db.commit()
     db.refresh(enfermero)
