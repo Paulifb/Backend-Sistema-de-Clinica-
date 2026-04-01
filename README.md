@@ -153,9 +153,14 @@ Enfermero → menú de enfermería
 
 📊 Presentación del proyecto
 
-Puedes ver la presentación aquí:
+Puedes ver la presentacion de integracion de los endpoints con FastAPI aquí:
+
+👉 https://canva.link/5wp5qqmdbqik1vk
+
+Puedes ver la presentación del ORM aquí:
 
 👉 https://www.canva.com/design/DAHEaazGp9A/znY5bCsAEHZoLc5cEYlbPA/edit?utm_content=DAHEaazGp9A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 
 🧪 Validaciones implementadas
 

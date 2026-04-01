@@ -1,16 +1,16 @@
 """CRUD para Enfermero"""
 
-from typing import List, Optional, Text
+from typing import List, Optional
 from uuid import UUID
 
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
+
 from src.entities.enfermero import Enfermero
 from src.entities.usuario import Usuario
 
-db = SessionLocal()
-
 
 def crear_enfermero(
+    db: Session,
     nombre: str,
     telefono: str,
     area: str,
@@ -68,7 +68,7 @@ def crear_enfermero(
     return enfermero
 
 
-def obtener_por_id(id_enfermero: UUID) -> Optional[Enfermero]:
+def obtener_por_id(db: Session, id_enfermero: UUID) -> Optional[Enfermero]:
     """
     Obtiene un registro del enfermero por su identificador.
     """
@@ -76,7 +76,7 @@ def obtener_por_id(id_enfermero: UUID) -> Optional[Enfermero]:
     return db.query(Enfermero).filter(Enfermero.id_enfermero == id_enfermero).first()
 
 
-def obtener_todos(skip: int = 0, limit: int = 100) -> List[Enfermero]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Enfermero]:
     """
     Obtiene todos los registros del enfermero con paginación.
     """
@@ -85,8 +85,9 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Enfermero]:
 
 
 def actualizar_enfermero(
+    db: Session,
     id_enfermero: UUID,
-    id_usuario: UUID,
+    id_usuario: Optional[UUID] = None,
     **kwargs: dict,
 ) -> Optional[Enfermero]:
     """
@@ -104,13 +105,10 @@ def actualizar_enfermero(
         El registro del enfermero actualizado o None si no existe.
     """
 
-    enfermero = obtener_por_id(id_enfermero)
+    enfermero = obtener_por_id(db, id_enfermero)
 
     if enfermero is None:
         return None
-
-    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
-        raise ValueError("El usuario especificado no existe")
 
     campos_validos = {"nombre", "telefono", "area", "turno"}
 
@@ -136,7 +134,11 @@ def actualizar_enfermero(
 
         setattr(enfermero, key, value)
 
-    enfermero.id_usuario = id_usuario
+    if id_usuario is not None:
+        if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
+            raise ValueError("El usuario especificado no existe")
+
+        enfermero.id_usuario = id_usuario
 
     db.commit()
     db.refresh(enfermero)
@@ -144,12 +146,12 @@ def actualizar_enfermero(
     return enfermero
 
 
-def eliminar_enfermero(id_enfermero: UUID) -> bool:
+def eliminar_enfermero(db: Session, id_enfermero: UUID) -> bool:
     """
     Elimina un registro del enfermero por su identificador.
     """
 
-    enfermero = obtener_por_id(id_enfermero)
+    enfermero = obtener_por_id(db, id_enfermero)
 
     if enfermero:
         db.delete(enfermero)
