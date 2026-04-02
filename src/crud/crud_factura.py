@@ -21,33 +21,40 @@ def crear_factura(
     metodo_pago: Optional[str] = None,
 ) -> Factura:
 
+    # Validaciones básicas
     if total <= 0:
         raise ValueError("El total debe ser mayor a 0")
 
     if fecha_pago > datetime.now(timezone.utc):
         raise ValueError("La fecha de pago no puede ser futura")
 
+    # Validar cita existente
     if not db.query(Cita).filter(Cita.id_cita == id_cita).first():
         raise ValueError("La cita no existe")
 
+    # Validar usuario creador
     if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_creacion).first():
         raise ValueError("El usuario especificado no existe")
 
+    # Validar estado
     estado_pago = estado_pago.strip().capitalize()
     estados_validos = ["Pendiente", "Pagado", "Cancelado"]
     if estado_pago not in estados_validos:
         raise ValueError("Estado de pago inválido")
 
+    # Validar que no exista una factura para esa cita
     factura_existente = db.query(Factura).filter(Factura.id_cita == id_cita).first()
     if factura_existente:
         raise ValueError("Ya existe una factura para esta cita")
 
+    # Validar método de pago
     if metodo_pago:
         metodo_pago = metodo_pago.strip().capitalize()
         metodos_validos = ["Efectivo", "Tarjeta", "Transferencia"]
         if metodo_pago not in metodos_validos:
             raise ValueError("Método de pago inválido")
 
+    # Crear factura
     factura = Factura(
         id_cita=id_cita,
         total=total,
@@ -83,9 +90,11 @@ def actualizar(
     if not factura:
         return None
 
+    # Validar usuario editor
     if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion).first():
         raise ValueError("El usuario especificado no existe")
 
+    # Reglas de actualización
     estados_validos = ["Pendiente", "Pagado", "Cancelado"]
 
     for key, value in kwargs.items():
