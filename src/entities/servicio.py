@@ -1,6 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, Text, Float
+from sqlalchemy import Column, ForeignKey, String, Text, Float
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from src.database.config import Base
 
 
@@ -44,6 +45,17 @@ class Servicio(Base):
         String(50),
         nullable=True,
         doc="Tiempo estimado de duración del servicio (ej. 30 min, 1 hora).",
+    )
+
+    id_usuario = Column(
+        UUID(as_uuid=True),
+        ForeignKey("usuarios.id_usuario"),
+        nullable=False,
+        doc="Relación con la tabla de Usuarios.",
+    )
+
+    usuario = relationship(
+        "Usuario", foreign_keys=[id_usuario], doc="Objeto de relación hacia el Usuario."
     )
 
     def __repr__(self):

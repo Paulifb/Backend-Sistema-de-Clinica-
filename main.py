@@ -139,175 +139,15 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             except Exception as e:
                 print("Error:", e)
 
-
-def menu_paciente(usuario):
-    while True:
-        print("\n--- PACIENTE ---")
-        print(
-            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil  0. Volver"
-        )
-        op = leer_texto("Opción: ")
-
-        if op == "1":
-            encontrado = False
-            for p in paciente.obtener_todos():
-                if p.id_usuario == usuario.id_usuario:
-                    eps_obj = eps.obtener_por_id(p.id_eps)
-                    nombre_eps = eps_obj.nombre if eps_obj else "Sin EPS"
-                    print(
-                        f"ID: {p.id_paciente} | Nombre: {p.nombre} | EPS: {nombre_eps}"
-                    )
-                    encontrado = True
-            if not encontrado:
-                print("No se encontró perfil registrado.")
-
-        elif op == "2":
-            try:
-                nombre = leer_texto("Nombre: ")
-                if not nombre:
-                    print("Nombre obligatorio")
-                    continue
-
-                fecha_nac_str = leer_texto("Fecha nacimiento (AAAA-MM-DD): ")
-                if not fecha_nac_str:
-                    print("Fecha obligatoria")
-                    continue
-
-                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d")
-
-                nombre_eps = leer_texto("Nombre de la EPS: ")
-                telefono_eps = leer_texto("Teléfono EPS: ")
-                direccion_eps = leer_texto("Dirección EPS: ")
-
-                if not nombre_eps or not telefono_eps or not direccion_eps:
-                    print("Todos los datos de la EPS son obligatorios")
-                    continue
-
-                lista_eps = eps.obtener_todos()
-                eps_encontrada = None
-
-                for e in lista_eps:
-                    if e.nombre.lower() == nombre_eps.lower():
-                        eps_encontrada = e
-                        break
-
-                if not eps_encontrada:
-                    eps_encontrada = eps.crear_eps(
-                        nombre=nombre_eps,
-                        telefono=telefono_eps,
-                        direccion=direccion_eps,
-                    )
-
-                paciente.crear_paciente(
-                    nombre=nombre,
-                    fecha_nacimiento=fecha_nacimiento,
-                    genero=leer_texto("Género: "),
-                    tipo_afiliacion=leer_texto("Tipo afiliación: "),
-                    id_eps=eps_encontrada.id_eps,
-                    id_usuario=usuario.id_usuario,
-                    id_usuario_creacion=usuario.id_usuario,
-                    telefono=leer_texto("Teléfono: "),
-                    direccion=leer_texto("Dirección: "),
-                )
-
-                print("Datos registrados exitosamente.")
-
-            except Exception as e:
-                print("Error:", e)
-
-        elif op == "3":
-            for p in paciente.obtener_todos():
-                eps_obj = eps.obtener_por_id(p.id_eps)
-                nombre_eps = eps_obj.nombre if eps_obj else "Sin EPS"
-                print(
-                    f"{p.id_paciente} | {p.nombre} | {p.tipo_afiliacion} | {nombre_eps}"
-                )
-
-        elif op == "4":
-            lista_eps = eps.obtener_todos()
-            if not lista_eps:
-                print("No hay EPS registradas.")
-            else:
-                print("\n--- EPS DISPONIBLES ---")
-                for e in lista_eps:
-                    print(f"{e.id_eps} | {e.nombre} | {e.telefono}")
-
-        elif op == "5":
-            paciente_encontrado = None
-
-            for p in paciente.obtener_todos():
-                if p.id_usuario == usuario.id_usuario:
-                    paciente_encontrado = p
-                    break
-
-            if not paciente_encontrado:
-                print("No tienes perfil registrado.")
-                continue
-
-            try:
-                print("Deja vacío si no deseas cambiar el dato")
-
-                nuevo_nombre = leer_texto("Nuevo nombre: ")
-                nuevo_telefono = leer_texto("Nuevo teléfono: ")
-                nueva_direccion = leer_texto("Nueva dirección: ")
-
-                datos_actualizar = {}
-
-                if nuevo_nombre:
-                    datos_actualizar["nombre"] = nuevo_nombre
-                if nuevo_telefono:
-                    datos_actualizar["telefono"] = nuevo_telefono
-                if nueva_direccion:
-                    datos_actualizar["direccion"] = nueva_direccion
-
-                if not datos_actualizar:
-                    print("No se realizaron cambios.")
-                    continue
-
-                paciente.actualizar_paciente(
-                    id_paciente=paciente_encontrado.id_paciente,
-                    id_usuario_edita=usuario.id_usuario,
-                    **datos_actualizar,
-                )
-
-                print("Datos actualizados correctamente.")
-
-            except Exception as e:
-                print("Error:", e)
-
-        elif op == "6":
-            paciente_encontrado = None
-
-            for p in paciente.obtener_todos():
-                if p.id_usuario == usuario.id_usuario:
-                    paciente_encontrado = p
-                    break
-
-            if not paciente_encontrado:
-                print("No tienes perfil registrado.")
-                continue
-
-            confirmacion = leer_texto("¿Seguro que deseas eliminar tu perfil? (s/n): ")
-
-            if confirmacion.lower() == "s":
-                eliminado = paciente.eliminar_paciente(paciente_encontrado.id_paciente)
-
-                if eliminado:
-                    print("Perfil eliminado correctamente.")
-                else:
-                    print("No se pudo eliminar el perfil.")
-            else:
-                print("Operación cancelada.")
-
         elif op == "0":
-            break
+            return None
 
 
 def menu_paciente(usuario):
     while True:
         print("\n--- PACIENTE ---")
         print(
-            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil  0. Volver"
+            "1. Ver mi perfil  2. Registrar datos de paciente  3. Listar todos  4. Ver EPS disponibles  5. Actualizar mis datos  6. Eliminar mi perfil 7. Agendar cita 0. Volver"
         )
         op = leer_texto("Opción: ")
 
@@ -336,7 +176,9 @@ def menu_paciente(usuario):
                     print("Fecha obligatoria")
                     continue
 
-                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d")
+                fecha_nacimiento = datetime.strptime(fecha_nac_str, "%Y-%m-%d").replace(
+                    tzinfo=timezone.utc
+                )
 
                 nombre_eps = leer_texto("Nombre de la EPS: ")
                 telefono_eps = leer_texto("Teléfono EPS: ")
@@ -427,9 +269,9 @@ def menu_paciente(usuario):
                     print("No se realizaron cambios.")
                     continue
 
-                paciente.actualizar_paciente(
+                paciente.actualizar(
                     id_paciente=paciente_encontrado.id_paciente,
-                    id_usuario_edita=usuario.id_usuario,
+                    id_usuario_edicion=usuario.id_usuario,
                     **datos_actualizar,
                 )
 
@@ -453,7 +295,7 @@ def menu_paciente(usuario):
             confirmacion = leer_texto("¿Seguro que deseas eliminar tu perfil? (s/n): ")
 
             if confirmacion.lower() == "s":
-                eliminado = paciente.eliminar_paciente(paciente_encontrado.id_paciente)
+                eliminado = paciente.eliminar(paciente_encontrado.id_paciente)
 
                 if eliminado:
                     print("Perfil eliminado correctamente.")
@@ -461,6 +303,9 @@ def menu_paciente(usuario):
                     print("No se pudo eliminar el perfil.")
             else:
                 print("Operación cancelada.")
+
+        elif op == "7":
+            menu_citas_paciente(usuario)
 
         elif op == "0":
             break
@@ -582,10 +427,8 @@ def menu_citas_paciente(usuario):
 
             if nueva_fecha:
                 try:
-                    fecha_hora = datetime.datetime.strptime(
-                        nueva_fecha, "%Y-%m-%d %H:%M"
-                    )
-                    fecha_hora = fecha_hora.replace(tzinfo=datetime.timezone.utc)
+                    fecha_hora = datetime.strptime(nueva_fecha, "%Y-%m-%d %H:%M")
+                    fecha_hora = fecha_hora.replace(tzinfo=timezone.utc)
                     datos["fecha_hora"] = fecha_hora
                 except ValueError:
                     print("Formato de fecha inválido")
@@ -613,6 +456,35 @@ def menu_citas_paciente(usuario):
                 print("Error:", e)
 
         elif op == "4":
+            print("\n-- Eliminar cita --")
+
+            id_cita = leer_uuid("Id cita: ")
+            if not id_cita:
+                print("ID inválido")
+                continue
+
+            cita_obj = cita.obtener_por_id(id_cita)
+            if not cita_obj:
+                print("La cita no existe")
+                continue
+
+            if cita_obj.id_paciente != usuario.id_usuario:
+                print("No puedes eliminar esta cita")
+                continue
+
+            confirmacion = leer_texto("¿Seguro que deseas eliminar la cita? (s/n): ")
+
+            if confirmacion.lower() == "s":
+                eliminado = cita.eliminar_cita(id_cita)
+
+                if eliminado:
+                    print("Cita eliminada correctamente")
+                else:
+                    print("No se pudo eliminar la cita")
+            else:
+                print("Operación cancelada")
+
+        elif op == "5":
             print("\n-- Generar factura --")
 
             id_cita = leer_uuid("ID cita: ")
@@ -620,12 +492,22 @@ def menu_citas_paciente(usuario):
                 print("ID inválido")
                 continue
 
-            citas = cita.obtener_por_id(id_cita)
-            if not citas:
+            cita_obj = cita.obtener_por_id(id_cita)
+            if not cita_obj:
                 print("La cita no existe")
                 continue
 
-            if citas.id_paciente != usuario.id_usuario:
+            paciente_obj = None
+            for p in paciente.obtener_todos():
+                if p.id_usuario == usuario.id_usuario:
+                    paciente_obj = p
+                    break
+
+            if not paciente_obj:
+                print("No tienes perfil de paciente")
+                continue
+
+            if cita_obj.id_paciente != paciente_obj.id_paciente:
                 print("No puedes generar factura de esta cita")
                 continue
 
@@ -634,13 +516,13 @@ def menu_citas_paciente(usuario):
                 print("Ya existe factura para esta cita")
                 continue
 
-            servicios = servicio.obtener_por_id(cita.id_servicio)
+            servicio_obj = servicio.obtener_por_id(cita_obj.id_servicio)
 
-            if not servicio:
+            if not servicio_obj:
                 print("Servicio no encontrado")
                 continue
 
-            total = servicio.precio
+            total = servicio_obj.costo_base
 
             estado_pago = leer_texto("Estado de pago (Pendiente/Pagado/Cancelado): ")
             metodo_pago = leer_texto(
@@ -652,7 +534,7 @@ def menu_citas_paciente(usuario):
                     id_cita=id_cita,
                     total=total,
                     estado_pago=estado_pago,
-                    fecha_pago=datetime.now(datetime.timezone.utc),
+                    fecha_pago=datetime.now(timezone.utc),
                     id_usuario_creacion=usuario.id_usuario,
                     metodo_pago=metodo_pago if metodo_pago else None,
                 )
@@ -817,7 +699,7 @@ def menu_historial(usuario):
 
         if op == "1":
             for h in historial.obtener_todos():
-                print(h)
+                print(f"{h.id_historial} | {h.diagnostico} | {h.observaciones_medicas}")
 
         elif op == "2":
             id_cita = leer_uuid("Id de la cita: ")
@@ -890,7 +772,7 @@ def menu_historial(usuario):
                 print("Historial no encontrado")
 
         elif op == "5":
-            menu_tratamientos()
+            menu_tratamientos(usuario)
 
         elif op == "0":
             break
@@ -898,13 +780,21 @@ def menu_historial(usuario):
 
 def menu_tratamientos(usuario):
     while True:
-        print("\n--- Historial Medico ---")
+        print("\n--- TRATAMIENTOS ---")
         print("1. Ver  2. Crear tratamiento  3. Editar  4. Eliminar 0. Volver")
         op = leer_texto("Opción: ")
 
         if op == "1":
-            for t in tratamiento.obtener_todos():
-                print(t)
+            lista = tratamiento.obtener_todos()
+
+            if not lista:
+                print("No hay tratamientos registrados")
+                continue
+
+            for t in lista:
+                print(
+                    f"{t.id_tratamiento} | {t.id_historial} | {t.nombre_tratamiento} | {t.dosis} | {t.duracion} | {t.descripcion}"
+                )
 
         elif op == "2":
             id_historial = leer_uuid("Id historial medico: ")
@@ -918,15 +808,27 @@ def menu_tratamientos(usuario):
                 print("Campo obligatorio")
                 continue
 
+            dosis = leer_texto("Dosis: ")
+            if not dosis:
+                print("Campo obligatorio")
+                continue
+
+            duracion = leer_int("Duración (días): ")
+            if duracion <= 0:
+                print("Duración inválida")
+                continue
+
+            descripcion = leer_texto("Descripción (opcional): ")
+
             try:
                 tratamiento.crear(
                     id_historial=id_historial,
                     nombre_tratamiento=nombre,
-                    dosis=leer_texto("Dosis: "),
-                    duracion=leer_texto("Duración: "),
+                    dosis=dosis,
+                    duracion=duracion,
+                    descripcion=descripcion if descripcion else None,
                 )
                 print("Tratamiento creado")
-
             except ValueError as e:
                 print("Error:", e)
 
@@ -936,22 +838,43 @@ def menu_tratamientos(usuario):
                 print("ID inválido")
                 continue
 
-            nombre = leer_texto("Nuevo nombre: ")
-            if not nombre:
-                print("Campo obligatorio")
+            nuevo_nombre = leer_texto("Nuevo nombre: ")
+            nueva_dosis = leer_texto("Nueva dosis: ")
+            nueva_duracion = leer_texto("Nueva duración (días): ")
+
+            datos = {}
+
+            if nuevo_nombre:
+                datos["nombre_tratamiento"] = nuevo_nombre
+
+            if nueva_dosis:
+                datos["dosis"] = nueva_dosis
+
+            if nueva_duracion:
+                try:
+                    duracion_int = int(nueva_duracion)
+                    if duracion_int <= 0:
+                        print("Duración inválida")
+                        continue
+                    datos["duracion"] = duracion_int
+                except ValueError:
+                    print("Duración debe ser un número")
+                    continue
+
+            if not datos:
+                print("No se realizaron cambios")
                 continue
 
             try:
                 actualizado = tratamiento.actualizar(
                     id_tratamiento=id_tratamiento,
-                    nombre_tratamiento=nombre,
+                    **datos,
                 )
 
                 if actualizado:
                     print("Tratamiento actualizado")
                 else:
                     print("Tratamiento no encontrado")
-
             except ValueError as e:
                 print("Error:", e)
 
@@ -961,12 +884,17 @@ def menu_tratamientos(usuario):
                 print("ID inválido")
                 continue
 
-            eliminado = tratamiento.eliminar(id_tratamiento)
+            confirmacion = leer_texto("¿Seguro que deseas eliminar? (s/n): ")
 
-            if eliminado:
-                print("Tratamiento eliminado")
+            if confirmacion.lower() == "s":
+                eliminado = tratamiento.eliminar(id_tratamiento)
+
+                if eliminado:
+                    print("Tratamiento eliminado")
+                else:
+                    print("Tratamiento no encontrado")
             else:
-                print("Tratamiento no encontrado")
+                print("Operación cancelada")
 
         elif op == "0":
             break
