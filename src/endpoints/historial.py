@@ -13,9 +13,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
 
-from src.database.config import get_db
+from .deps import DbSession
 from src.crud import crud_historial
 
 router = APIRouter(prefix="/historiales", tags=["historiales"])
@@ -79,7 +78,7 @@ class HistorialRead(BaseModel):
 
 @router.get("", response_model=List[HistorialRead])
 def listar_historiales(
-    db: Session = Depends(get_db), skip: int = 0, limit: int = 100
+    db: DbSession, skip: int = 0, limit: int = 100
 ) -> List[HistorialRead]:
     """
     Obtiene la lista de historiales clínicos.
@@ -93,9 +92,7 @@ def listar_historiales(
 
 
 @router.get("/{id_historial}", response_model=HistorialRead)
-def obtener_historial(
-    id_historial: UUID, db: Session = Depends(get_db)
-) -> HistorialRead:
+def obtener_historial(id_historial: UUID, db: DbSession) -> HistorialRead:
     """
     Obtiene un historial clínico por su identificador.
 
@@ -115,9 +112,7 @@ def obtener_historial(
 
 
 @router.post("", response_model=HistorialRead, status_code=status.HTTP_201_CREATED)
-def crear_historial(
-    body: HistorialCreate, db: Session = Depends(get_db)
-) -> HistorialRead:
+def crear_historial(body: HistorialCreate, db: DbSession) -> HistorialRead:
     """
     Crea un nuevo historial clínico.
 
@@ -147,7 +142,7 @@ def crear_historial(
 
 @router.put("/{id_historial}", response_model=HistorialRead)
 def actualizar_historial(
-    id_historial: UUID, body: HistorialUpdate, db: Session = Depends(get_db)
+    id_historial: UUID, body: HistorialUpdate, db: DbSession
 ) -> HistorialRead:
     """
     Actualiza un historial clínico existente.
@@ -179,7 +174,7 @@ def actualizar_historial(
 
 
 @router.delete("/{id_historial}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_historial(id_historial: UUID, db: Session = Depends(get_db)) -> None:
+def eliminar_historial(id_historial: UUID, db: DbSession) -> None:
     """
     Elimina un historial clínico por su identificador.
 
