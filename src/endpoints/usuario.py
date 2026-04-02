@@ -3,9 +3,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from sqlalchemy.orm import Session
 
-from src.database.config import get_db
+from .deps import DbSession
 from src.crud import crud_usuario
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
@@ -78,7 +77,7 @@ class UsuarioRead(BaseModel):
 
 @router.get("", response_model=List[UsuarioRead])
 def listar_usuarios(
-    db: Session = Depends(get_db), skip: int = 0, limit: int = 100
+    db: DbSession, skip: int = 0, limit: int = 100
 ) -> List[UsuarioRead]:
     """
     Obtiene una lista de usuarios con paginación.
@@ -95,7 +94,7 @@ def listar_usuarios(
 
 
 @router.get("/{id_usuario}", response_model=UsuarioRead)
-def obtener_usuario(id_usuario: UUID, db: Session = Depends(get_db)) -> UsuarioRead:
+def obtener_usuario(id_usuario: UUID, db: DbSession) -> UsuarioRead:
     """
     Obtiene un usuario por su identificador.
 
@@ -119,7 +118,7 @@ def obtener_usuario(id_usuario: UUID, db: Session = Depends(get_db)) -> UsuarioR
 
 
 @router.post("", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
-def crear_usuario(body: UsuarioCreate, db: Session = Depends(get_db)) -> UsuarioRead:
+def crear_usuario(body: UsuarioCreate, db: DbSession) -> UsuarioRead:
     """
     Crea un nuevo usuario.
 
@@ -150,7 +149,7 @@ def crear_usuario(body: UsuarioCreate, db: Session = Depends(get_db)) -> Usuario
 
 @router.put("/{id_usuario}", response_model=UsuarioRead)
 def actualizar_usuario(
-    id_usuario: UUID, body: UsuarioUpdate, db: Session = Depends(get_db)
+    id_usuario: UUID, body: UsuarioUpdate, db: DbSession
 ) -> UsuarioRead:
     """
     Actualiza un usuario existente.
@@ -185,7 +184,7 @@ def actualizar_usuario(
 
 
 @router.delete("/{id_usuario}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario(id_usuario: UUID, db: Session = Depends(get_db)) -> None:
+def eliminar_usuario(id_usuario: UUID, db: DbSession) -> None:
     """
     Elimina un usuario por su identificador.
 

@@ -11,9 +11,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy.orm import Session
 
-from src.database.config import get_db
+from .deps import DbSession
 from src.crud import crud_enfermero
 
 router = APIRouter(prefix="/enfermeros", tags=["enfermeros"])
@@ -68,7 +67,7 @@ class EnfermeroRead(BaseModel):
 
 @router.get("", response_model=List[EnfermeroRead])
 def listar_enfermeros(
-    db: Session = Depends(get_db), skip: int = 0, limit: int = 100
+    db: DbSession, skip: int = 0, limit: int = 100
 ) -> List[EnfermeroRead]:
     """
     Obtiene la lista de enfermeros.
@@ -82,9 +81,7 @@ def listar_enfermeros(
 
 
 @router.get("/{id_enfermero}", response_model=EnfermeroRead)
-def obtener_enfermero(
-    id_enfermero: UUID, db: Session = Depends(get_db)
-) -> EnfermeroRead:
+def obtener_enfermero(id_enfermero: UUID, db: DbSession) -> EnfermeroRead:
     """
     Obtiene un enfermero por su identificador.
 
@@ -104,9 +101,7 @@ def obtener_enfermero(
 
 
 @router.post("", response_model=EnfermeroRead, status_code=status.HTTP_201_CREATED)
-def crear_enfermero(
-    body: EnfermeroCreate, db: Session = Depends(get_db)
-) -> EnfermeroRead:
+def crear_enfermero(body: EnfermeroCreate, db: DbSession) -> EnfermeroRead:
     """
     Crea un nuevo enfermero.
 
@@ -134,7 +129,7 @@ def crear_enfermero(
 
 @router.put("/{id_enfermero}", response_model=EnfermeroRead)
 def actualizar_enfermero(
-    id_enfermero: UUID, body: EnfermeroUpdate, db: Session = Depends(get_db)
+    id_enfermero: UUID, body: EnfermeroUpdate, db: DbSession
 ) -> EnfermeroRead:
     """
     Actualiza un enfermero existente.
@@ -164,7 +159,7 @@ def actualizar_enfermero(
 
 
 @router.delete("/{id_enfermero}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_enfermero(id_enfermero: UUID, db: Session = Depends(get_db)) -> None:
+def eliminar_enfermero(id_enfermero: UUID, db: DbSession) -> None:
     """
     Elimina un enfermero por su identificador.
 

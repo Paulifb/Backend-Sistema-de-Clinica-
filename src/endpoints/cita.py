@@ -13,11 +13,10 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
+from .deps import DbSession
 
-from src.database.config import get_db
 from src.crud import crud_cita
 
 router = APIRouter(prefix="/citas", tags=["citas"])
@@ -107,9 +106,7 @@ class CitaRead(BaseModel):
 
 
 @router.get("", response_model=List[CitaRead])
-def listar_citas(
-    db: Session = Depends(get_db), skip: int = 0, limit: int = 100
-) -> List[CitaRead]:
+def listar_citas(db: DbSession, skip: int = 0, limit: int = 100) -> List[CitaRead]:
     """
     Lista todas las citas registradas en el sistema.
 
@@ -125,7 +122,7 @@ def listar_citas(
 
 
 @router.get("/{id_cita}", response_model=CitaRead)
-def obtener_cita(id_cita: UUID, db: Session = Depends(get_db)) -> CitaRead:
+def obtener_cita(id_cita: UUID, db: DbSession) -> CitaRead:
     """
     Obtiene una cita específica por su ID.
 
@@ -148,7 +145,7 @@ def obtener_cita(id_cita: UUID, db: Session = Depends(get_db)) -> CitaRead:
 
 
 @router.post("", response_model=CitaRead, status_code=status.HTTP_201_CREATED)
-def crear_cita(body: CitaCreate, db: Session = Depends(get_db)) -> CitaRead:
+def crear_cita(body: CitaCreate, db: DbSession) -> CitaRead:
     """
     Crea una nueva cita en el sistema.
 
@@ -180,9 +177,7 @@ def crear_cita(body: CitaCreate, db: Session = Depends(get_db)) -> CitaRead:
 
 
 @router.put("/{id_cita}", response_model=CitaRead)
-def actualizar_cita(
-    id_cita: UUID, body: CitaUpdate, db: Session = Depends(get_db)
-) -> CitaRead:
+def actualizar_cita(id_cita: UUID, body: CitaUpdate, db: DbSession) -> CitaRead:
     """
     Actualiza una cita existente.
 
@@ -222,7 +217,7 @@ def actualizar_cita(
 
 
 @router.delete("/{id_cita}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_cita(id_cita: UUID, db: Session = Depends(get_db)) -> None:
+def eliminar_cita(id_cita: UUID, db: DbSession) -> None:
     """
     Elimina una cita del sistema.
 
