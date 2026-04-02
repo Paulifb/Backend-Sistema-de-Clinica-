@@ -21,9 +21,7 @@ def crear_especialidad(
     if not db.query(Usuario).get(id_usuario):
         raise ValueError("El usuario especificado no existe")
 
-    nueva = Especialidad(
-        nombre=nombre, descripcion=descripcion, id_usuario_creacion=id_usuario
-    )
+    nueva = Especialidad(nombre=nombre, descripcion=descripcion, id_usuario=id_usuario)
     db.add(nueva)
     db.commit()
     db.refresh(nueva)
@@ -60,7 +58,7 @@ def actualizar_especialidad(
                     raise ValueError("El nombre no puede estar vacío")
             setattr(especialidad, key, value)
 
-    especialidad.id_usuario_edita = id_usuario
+    especialidad.id_usuario = id_usuario
     db.commit()
     db.refresh(especialidad)
     return especialidad

@@ -2,15 +2,14 @@
 
 from typing import List, Optional
 from uuid import UUID
+from sqlalchemy.orm import Session
 
-from src.database.config import SessionLocal
 from src.entities.tratamiento import Tratamiento
 from src.entities.historial import Historial
 
-db = SessionLocal()
-
 
 def crear(
+    db: Session,
     id_historial: UUID,
     nombre_tratamiento: str,
     dosis: str,
@@ -60,7 +59,7 @@ def crear(
     return tratamiento
 
 
-def obtener_por_id(id_tratamiento: UUID) -> Optional[Tratamiento]:
+def obtener_por_id(db: Session, id_tratamiento: UUID) -> Optional[Tratamiento]:
     return (
         db.query(Tratamiento)
         .filter(Tratamiento.id_tratamiento == id_tratamiento)
@@ -68,14 +67,17 @@ def obtener_por_id(id_tratamiento: UUID) -> Optional[Tratamiento]:
     )
 
 
-def obtener_todos() -> List[Tratamiento]:
+def obtener_todos(db: Session) -> List[Tratamiento]:
     return db.query(Tratamiento).all()
 
 
-def actualizar(id_tratamiento: UUID, **kwargs) -> Optional[Tratamiento]:
+def actualizar(
+    db: Session,
+    id_tratamiento: UUID,
+    **kwargs,
+) -> Optional[Tratamiento]:
 
-    tratamiento = obtener_por_id(id_tratamiento)
-
+    tratamiento = obtener_por_id(db, id_tratamiento)
     if not tratamiento:
         return None
 
@@ -84,17 +86,14 @@ def actualizar(id_tratamiento: UUID, **kwargs) -> Optional[Tratamiento]:
         if isinstance(value, str):
             value = value.strip()
 
-        if key == "nombre_tratamiento":
-            if not value:
-                raise ValueError("El nombre del tratamiento es obligatorio")
+        if key == "nombre_tratamiento" and not value:
+            raise ValueError("El nombre del tratamiento es obligatorio")
 
-        if key == "dosis":
-            if not value:
-                raise ValueError("La dosis es obligatoria")
+        if key == "dosis" and not value:
+            raise ValueError("La dosis es obligatoria")
 
-        if key == "duracion":
-            if value <= 0:
-                raise ValueError("La duración debe ser mayor a 0")
+        if key == "duracion" and value <= 0:
+            raise ValueError("La duración debe ser mayor a 0")
 
         if key == "id_historial":
             if not db.query(Historial).filter(Historial.id_historial == value).first():
@@ -108,10 +107,9 @@ def actualizar(id_tratamiento: UUID, **kwargs) -> Optional[Tratamiento]:
     return tratamiento
 
 
-def eliminar(id_tratamiento: UUID) -> bool:
+def eliminar(db: Session, id_tratamiento: UUID) -> bool:
 
-    tratamiento = obtener_por_id(id_tratamiento)
-
+    tratamiento = obtener_por_id(db, id_tratamiento)
     if not tratamiento:
         return False
 

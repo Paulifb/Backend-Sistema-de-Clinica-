@@ -4,15 +4,15 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime, timezone
 
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
+
 from src.entities.factura import Factura
 from src.entities.cita import Cita
 from src.entities.usuario import Usuario
 
-db = SessionLocal()
-
 
 def crear_factura(
+    db: Session,
     id_cita: UUID,
     total: float,
     estado_pago: str,
@@ -34,13 +34,11 @@ def crear_factura(
         raise ValueError("El usuario especificado no existe")
 
     estado_pago = estado_pago.strip().capitalize()
-
     estados_validos = ["Pendiente", "Pagado", "Cancelado"]
     if estado_pago not in estados_validos:
         raise ValueError("Estado de pago inválido")
 
     factura_existente = db.query(Factura).filter(Factura.id_cita == id_cita).first()
-
     if factura_existente:
         raise ValueError("Ya existe una factura para esta cita")
 
@@ -66,22 +64,27 @@ def crear_factura(
     return factura
 
 
-def obtener_por_id(id_factura: UUID) -> Optional[Factura]:
+def obtener_por_id(db: Session, id_factura: UUID) -> Optional[Factura]:
     return db.query(Factura).filter(Factura.id_factura == id_factura).first()
 
 
-def obtener_todos() -> List[Factura]:
+def obtener_todos(db: Session) -> List[Factura]:
     return db.query(Factura).all()
 
 
 def actualizar(
-    id_factura: UUID, id_usuario_edicion: UUID, **kwargs
+    db: Session,
+    id_factura: UUID,
+    id_usuario_edicion: UUID,
+    **kwargs,
 ) -> Optional[Factura]:
 
-    factura = obtener_por_id(id_factura)
-
+    factura = obtener_por_id(db, id_factura)
     if not factura:
         return None
+
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion).first():
+        raise ValueError("El usuario especificado no existe")
 
     estados_validos = ["Pendiente", "Pagado", "Cancelado"]
 
@@ -95,16 +98,11 @@ def actualizar(
             if value not in estados_validos:
                 raise ValueError("Estado de pago inválido")
 
-        if key == "total":
-            if value <= 0:
-                raise ValueError("El total debe ser mayor a 0")
+        if key == "total" and value <= 0:
+            raise ValueError("El total debe ser mayor a 0")
 
-        if key == "fecha_pago":
-            if value > datetime.now():
-                raise ValueError("La fecha de pago no puede ser futura")
-
-            if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion):
-                raise ValueError("El usuario especificado no existe")
+        if key == "fecha_pago" and value > datetime.now(timezone.utc):
+            raise ValueError("La fecha de pago no puede ser futura")
 
         setattr(factura, key, value)
 
@@ -116,10 +114,8 @@ def actualizar(
     return factura
 
 
-def eliminar(id_factura: UUID) -> bool:
-
-    factura = obtener_por_id(id_factura)
-
+def eliminar(db: Session, id_factura: UUID) -> bool:
+    factura = obtener_por_id(db, id_factura)
     if not factura:
         return False
 
