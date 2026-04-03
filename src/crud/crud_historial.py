@@ -3,22 +3,22 @@
 from typing import List, Optional
 from uuid import UUID
 
+from sqlalchemy.orm import Session
+
 from src.entities.usuario import Usuario
-from src.database.config import SessionLocal
 from src.entities.historial import Historial
 from src.entities.cita import Cita
 from src.entities.enfermero import Enfermero
 
-db = SessionLocal()
-
 
 def crear_historial(
+    db: Session,
     id_cita: UUID,
     id_enfermero: UUID,
     diagnostico: str,
-    observaciones_medicas: str,
-    indicaciones_enfermeria: str,
-    observaciones_enfermeria: str,
+    observaciones_medicas: Optional[str],
+    indicaciones_enfermeria: Optional[str],
+    observaciones_enfermeria: Optional[str],
     id_usuario_creacion: UUID,
 ) -> Historial:
     """
@@ -79,7 +79,7 @@ def crear_historial(
     return historial
 
 
-def obtener_por_id(id_historial: UUID) -> Optional[Historial]:
+def obtener_por_id(db: Session, id_historial: UUID) -> Optional[Historial]:
     """
     Obtiene un registro del historial por su identificador.
     """
@@ -87,7 +87,7 @@ def obtener_por_id(id_historial: UUID) -> Optional[Historial]:
     return db.query(Historial).filter(Historial.id_historial == id_historial).first()
 
 
-def obtener_todos(skip: int = 0, limit: int = 100) -> List[Historial]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Historial]:
     """
     Obtiene todos los registros del historial con paginación.
     """
@@ -96,6 +96,7 @@ def obtener_todos(skip: int = 0, limit: int = 100) -> List[Historial]:
 
 
 def actualizar_historial(
+    db: Session,
     id_historial: UUID,
     id_usuario_edicion: UUID,
     **kwargs: dict,
@@ -115,7 +116,7 @@ def actualizar_historial(
         El registro del historial actualizado o None si no existe.
     """
 
-    historial = obtener_por_id(id_historial)
+    historial = obtener_por_id(db, id_historial)
 
     if historial is None:
         return None
@@ -165,12 +166,12 @@ def actualizar_historial(
     return historial
 
 
-def eliminar_historial(id_historial: UUID) -> bool:
+def eliminar_historial(db: Session, id_historial: UUID) -> bool:
     """
     Elimina un registro del historial por su identificador.
     """
 
-    historial = obtener_por_id(id_historial)
+    historial = obtener_por_id(db, id_historial)
 
     if historial:
         db.delete(historial)
