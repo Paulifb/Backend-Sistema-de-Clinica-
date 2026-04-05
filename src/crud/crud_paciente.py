@@ -22,6 +22,12 @@ def crear_paciente(
     telefono: Optional[str] = None,
     direccion: Optional[str] = None,
 ) -> Paciente:
+    """
+    Crea un nuevo paciente en la base de datos.
+
+    Incluye validaciones de nombre, fecha de nacimiento,
+    EPS asociada y usuarios relacionados antes de registrar el paciente.
+    """
 
     if not nombre.strip():
         raise ValueError("El nombre es obligatorio")
@@ -58,10 +64,17 @@ def crear_paciente(
 
 
 def obtener_por_id(db: Session, id_paciente: UUID) -> Optional[Paciente]:
+    """
+    Obtiene un paciente por su ID.
+    Retorna None si no existe.
+    """
     return db.query(Paciente).filter(Paciente.id_paciente == id_paciente).first()
 
 
 def obtener_todos(db: Session) -> List[Paciente]:
+    """
+    Obtiene y devuelve todos los pacientes registrados.
+    """
     return db.query(Paciente).all()
 
 
@@ -71,6 +84,12 @@ def actualizar(
     id_usuario_edicion: UUID,
     **kwargs,
 ) -> Optional[Paciente]:
+    """
+    Actualiza un paciente existente.
+
+    Aplica cambios a los campos enviados y valida
+    que el usuario que edita exista en el sistema.
+    """
 
     paciente = obtener_por_id(db, id_paciente)
     if not paciente:
@@ -93,6 +112,10 @@ def actualizar(
 
 
 def eliminar(db: Session, id_paciente: UUID) -> bool:
+    """
+    Elimina un paciente por su ID.
+    Retorna True si se eliminó, False si no existe.
+    """
     paciente = obtener_por_id(db, id_paciente)
     if not paciente:
         return False

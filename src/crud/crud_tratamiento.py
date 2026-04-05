@@ -16,6 +16,12 @@ def crear(
     duracion: int,
     descripcion: Optional[str] = None,
 ) -> Tratamiento:
+    """
+    Crea un tratamiento asociado a un historial médico.
+
+    Realiza validaciones de campos obligatorios, duración,
+    historial existente y tratamientos duplicados antes de registrarlo.
+    """
 
     nombre_tratamiento = nombre_tratamiento.strip()
     dosis = dosis.strip()
@@ -60,6 +66,10 @@ def crear(
 
 
 def obtener_por_id(db: Session, id_tratamiento: UUID) -> Optional[Tratamiento]:
+    """
+    Obtiene un tratamiento por su ID.
+    Retorna None si no se encuentra.
+    """
     return (
         db.query(Tratamiento)
         .filter(Tratamiento.id_tratamiento == id_tratamiento)
@@ -68,6 +78,9 @@ def obtener_por_id(db: Session, id_tratamiento: UUID) -> Optional[Tratamiento]:
 
 
 def obtener_todos(db: Session) -> List[Tratamiento]:
+    """
+    Obtiene todos los tratamientos registrados.
+    """
     return db.query(Tratamiento).all()
 
 
@@ -76,6 +89,12 @@ def actualizar(
     id_tratamiento: UUID,
     **kwargs,
 ) -> Optional[Tratamiento]:
+    """
+    Actualiza un tratamiento existente.
+
+    Valida nombre, dosis, duración e historial nuevo
+    en caso de que alguno de estos campos sea modificado.
+    """
 
     tratamiento = obtener_por_id(db, id_tratamiento)
     if not tratamiento:
@@ -108,7 +127,10 @@ def actualizar(
 
 
 def eliminar(db: Session, id_tratamiento: UUID) -> bool:
-
+    """
+    Elimina un tratamiento por su ID.
+    Retorna True si se eliminó, False si no existe.
+    """
     tratamiento = obtener_por_id(db, id_tratamiento)
     if not tratamiento:
         return False

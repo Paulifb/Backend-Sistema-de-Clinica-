@@ -20,6 +20,12 @@ def crear_factura(
     id_usuario_creacion: UUID,
     metodo_pago: Optional[str] = None,
 ) -> Factura:
+    """
+    Crea una nueva factura en la base de datos.
+
+    Incluye validaciones de cita, usuario creador, estado de pago,
+    método de pago y valores básicos antes de registrar la factura.
+    """
 
     # Validaciones básicas
     if total <= 0:
@@ -72,10 +78,17 @@ def crear_factura(
 
 
 def obtener_por_id(db: Session, id_factura: UUID) -> Optional[Factura]:
+    """
+    Obtiene una factura por su ID.
+    Retorna None si no existe.
+    """
     return db.query(Factura).filter(Factura.id_factura == id_factura).first()
 
 
 def obtener_todos(db: Session) -> List[Factura]:
+    """
+    Obtiene y devuelve todas las facturas registradas.
+    """
     return db.query(Factura).all()
 
 
@@ -85,6 +98,12 @@ def actualizar(
     id_usuario_edicion: UUID,
     **kwargs,
 ) -> Optional[Factura]:
+    """
+    Actualiza una factura existente.
+
+    Verifica que la factura exista, que el usuario editor sea válido
+    y aplica reglas de validación para cada campo modificado.
+    """
 
     factura = obtener_por_id(db, id_factura)
     if not factura:
@@ -124,6 +143,10 @@ def actualizar(
 
 
 def eliminar(db: Session, id_factura: UUID) -> bool:
+    """
+    Elimina una factura por su ID.
+    Retorna True si se eliminó, False si no existe.
+    """
     factura = obtener_por_id(db, id_factura)
     if not factura:
         return False
