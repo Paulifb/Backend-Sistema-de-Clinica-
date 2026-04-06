@@ -3,15 +3,15 @@
 from typing import List, Optional
 from uuid import UUID
 from datetime import datetime, timezone
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
+
 from src.entities.paciente import Paciente
 from src.entities.eps import Eps
 from src.entities.usuario import Usuario
 
-db = SessionLocal()
-
 
 def crear_paciente(
+    db: Session,
     nombre: str,
     fecha_nacimiento: datetime,
     genero: str,
@@ -22,6 +22,12 @@ def crear_paciente(
     telefono: Optional[str] = None,
     direccion: Optional[str] = None,
 ) -> Paciente:
+    """
+    Crea un nuevo paciente en la base de datos.
+
+    Incluye validaciones de nombre, fecha de nacimiento,
+    EPS asociada y usuarios relacionados antes de registrar el paciente.
+    """
 
     if not nombre.strip():
         raise ValueError("El nombre es obligatorio")
@@ -30,7 +36,7 @@ def crear_paciente(
         raise ValueError("La fecha de nacimiento no puede ser futura")
 
     if not db.query(Eps).filter(Eps.id_eps == id_eps).first():
-        raise ValueError("la Eps no existe")
+        raise ValueError("La EPS no existe")
 
     if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first():
         raise ValueError("El usuario no existe")
@@ -57,40 +63,64 @@ def crear_paciente(
     return paciente
 
 
-def obtener_por_id(id_paciente: UUID) -> Optional[Paciente]:
+def obtener_por_id(db: Session, id_paciente: UUID) -> Optional[Paciente]:
+    """
+    Obtiene un paciente por su ID.
+    Retorna None si no existe.
+    """
     return db.query(Paciente).filter(Paciente.id_paciente == id_paciente).first()
 
 
-def obtener_todos() -> List[Paciente]:
+def obtener_todos(db: Session) -> List[Paciente]:
+    """
+    Obtiene y devuelve todos los pacientes registrados.
+    """
     return db.query(Paciente).all()
 
 
 def actualizar(
+    db: Session,
     id_paciente: UUID,
     id_usuario_edicion: UUID,
-    **kwargs: dict,
+    **kwargs,
 ) -> Optional[Paciente]:
-    paciente = obtener_por_id(id_paciente)
+    """
+    Actualiza un paciente existente.
 
+    Aplica cambios a los campos enviados y valida
+    que el usuario que edita exista en el sistema.
+    """
+
+    paciente = obtener_por_id(db, id_paciente)
     if not paciente:
         return None
+
     for key, value in kwargs.items():
+        if isinstance(value, str):
+            value = value.strip()
         setattr(paciente, key, value)
 
-    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion):
+    if not db.query(Usuario).filter(Usuario.id_usuario == id_usuario_edicion).first():
         raise ValueError("El usuario especificado no existe")
 
     paciente.id_usuario_edicion = id_usuario_edicion
+
     db.commit()
     db.refresh(paciente)
 
     return paciente
 
 
-def eliminar(id_paciente: UUID) -> bool:
-    paciente = obtener_por_id(id_paciente)
+def eliminar(db: Session, id_paciente: UUID) -> bool:
+    """
+    Elimina un paciente por su ID.
+    Retorna True si se eliminó, False si no existe.
+    """
+    paciente = obtener_por_id(db, id_paciente)
     if not paciente:
         return False
+
     db.delete(paciente)
     db.commit()
+
     return True
