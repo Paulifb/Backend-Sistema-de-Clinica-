@@ -13,7 +13,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, ConfigDict
 
 from .deps import DbSession
-from src.crud import tratamiento as crud_tratamiento
+from src.crud import crud_tratamiento
 
 router = APIRouter(prefix="/tratamientos", tags=["Tratamientos"])
 

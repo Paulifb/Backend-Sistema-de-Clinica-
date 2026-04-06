@@ -13,7 +13,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, ConfigDict
 
 from .deps import DbSession
-from src.crud import eps as crud_eps
+from src.crud import crud_eps
 
 
 router = APIRouter(prefix="/eps", tags=["EPS"])
