@@ -1,12 +1,13 @@
 """
 Punto de entrada: inicio de sesión (o creación del primer usuario)
-y menú CRUD para Categoría, Producto y Pedido.
+y menú CRUD.
 """
 
 from datetime import datetime, timezone
 import sys
 from typing import Optional
 from uuid import UUID
+from src.database.config import SessionLocal
 
 sys.path.insert(0, ".")
 
@@ -57,8 +58,9 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
     """
     Maneja creación del primer usuario y login.
     """
+    db = SessionLocal()
 
-    if not usuario.hay_usuarios():
+    if not usuario.hay_usuarios(db):
         print("\n--- No hay usuarios en el sistema ---")
         print("Crea el primer usuario.\n")
 
@@ -84,6 +86,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
 
         try:
             usuario_creado = usuario.crear_usuario(
+                db,
                 nombre_completo=nombre,
                 email=email,
                 clave=clave,
@@ -109,7 +112,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
                 print("Campos obligatorios.\n")
                 continue
 
-            usuario_log = usuario.login_usuario(email, clave)
+            usuario_log = usuario.login_usuario(db, email, clave)
 
             if usuario_log:
                 print(
@@ -127,6 +130,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
                 rol = leer_texto("Rol (paciente/medico/enfermero): ")
 
                 nuevo = usuario.crear_usuario(
+                    db,
                     nombre_completo=nombre,
                     email=email,
                     clave=clave,
