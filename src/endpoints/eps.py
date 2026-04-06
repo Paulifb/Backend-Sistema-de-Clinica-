@@ -97,7 +97,7 @@ def crear_eps(db: DbSession, body: EPSCreate):
     Valida que no exista otra EPS con el mismo nombre.
     """
     try:
-        return crud_eps.crear(
+        return crud_eps.crear_eps(
             db,
             nombre=body.nombre,
             correo=body.correo,
