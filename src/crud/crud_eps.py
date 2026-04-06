@@ -1,21 +1,24 @@
-"""CRUD para Eps"""
+"""CRUD para la entidad EPS."""
 
 from typing import List, Optional
 from uuid import UUID
-
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
 from src.entities.eps import Eps
-
-db = SessionLocal()
 
 
 def crear_eps(
+    db: Session,
     nombre: str,
     telefono: str,
     direccion: str,
     correo: Optional[str] = None,
     ciudad: Optional[str] = None,
 ) -> Eps:
+    """
+    Crea un registro de EPS.
+
+    Valida campos obligatorios y evita duplicados.
+    """
 
     if not nombre.strip():
         raise ValueError("El nombre es obligatorio")
@@ -26,9 +29,7 @@ def crear_eps(
     if not direccion.strip():
         raise ValueError("La dirección es obligatoria")
 
-    # Validar duplicado
     eps_existente = db.query(Eps).filter(Eps.nombre == nombre.strip()).first()
-
     if eps_existente:
         raise ValueError("La EPS ya existe")
 
@@ -43,51 +44,58 @@ def crear_eps(
     db.add(eps)
     db.commit()
     db.refresh(eps)
-
     return eps
 
 
-def obtener_por_id(id_eps: UUID) -> Optional[Eps]:
+def obtener_por_id(db: Session, id_eps: UUID) -> Optional[Eps]:
+    """
+    Obtiene una EPS por ID.
+    """
     return db.query(Eps).filter(Eps.id_eps == id_eps).first()
 
 
-def obtener_todos() -> List[Eps]:
+def obtener_todos(db: Session) -> List[Eps]:
+    """
+    Lista todas las EPS registradas.
+    """
     return db.query(Eps).all()
 
 
 def actualizar(
+    db: Session,
     id_eps: UUID,
     id_usuario_edita: UUID,
     **kwargs,
 ) -> Optional[Eps]:
+    """
+    Actualiza los datos de una EPS.
+    """
 
-    eps = obtener_por_id(id_eps)
-
+    eps = obtener_por_id(db, id_eps)
     if not eps:
         return None
 
     for key, value in kwargs.items():
         if isinstance(value, str):
             value = value.strip()
-
         setattr(eps, key, value)
 
     eps.id_usuario_edita = id_usuario_edita
 
     db.commit()
     db.refresh(eps)
-
     return eps
 
 
-def eliminar(id_eps: UUID) -> bool:
+def eliminar(db: Session, id_eps: UUID) -> bool:
+    """
+    Elimina una EPS por ID.
+    """
 
-    eps = obtener_por_id(id_eps)
-
+    eps = obtener_por_id(db, id_eps)
     if not eps:
         return False
 
     db.delete(eps)
     db.commit()
-
     return True
