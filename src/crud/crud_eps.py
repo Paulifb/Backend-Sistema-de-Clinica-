@@ -54,11 +54,11 @@ def obtener_por_id(db: Session, id_eps: UUID) -> Optional[Eps]:
     return db.query(Eps).filter(Eps.id_eps == id_eps).first()
 
 
-def obtener_todos(db: Session) -> List[Eps]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Eps]:
     """
     Lista todas las EPS registradas.
     """
-    return db.query(Eps).all()
+    return db.query(Eps).offset(skip).limit(limit).all()
 
 
 def actualizar(
