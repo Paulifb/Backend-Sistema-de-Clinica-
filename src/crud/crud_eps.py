@@ -64,7 +64,6 @@ def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Eps]:
 def actualizar(
     db: Session,
     id_eps: UUID,
-    id_usuario_edita: UUID,
     **kwargs,
 ) -> Optional[Eps]:
     """
@@ -79,8 +78,6 @@ def actualizar(
         if isinstance(value, str):
             value = value.strip()
         setattr(eps, key, value)
-
-    eps.id_usuario_edita = id_usuario_edita
 
     db.commit()
     db.refresh(eps)
