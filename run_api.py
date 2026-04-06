@@ -1,4 +1,7 @@
 """
+Arranca la API FastAPI (uvicorn).
+
+  python run_api.py
 Arranca la API FastAPI (uvicorn).rando e
 
   python main.py

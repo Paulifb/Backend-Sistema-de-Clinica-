@@ -1,8 +1,4 @@
 from typing import Annotated
-<<<<<<< HEAD
-=======
-
->>>>>>> 043e3ba80d1da0df53d1ecd2854e2646c5f09903
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
