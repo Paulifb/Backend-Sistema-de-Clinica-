@@ -71,7 +71,7 @@ def listar_eps(db: DbSession, skip: int = 0, limit: int = 100):
 
     Permite paginar los resultados mediante skip y limit.
     """
-    return crud_eps.listar(db, skip=skip, limit=limit)
+    return crud_eps.obtener_todos(db, skip=skip, limit=limit)
 
 
 @router.get("/{id_eps}", response_model=EPSRead)
@@ -81,7 +81,7 @@ def obtener_eps(db: DbSession, id_eps: UUID):
 
     Retorna el registro si existe, de lo contrario genera un error 404.
     """
-    eps = crud_eps.obtener(db, id_eps)
+    eps = crud_eps.obtener_por_id(db, id_eps)
     if not eps:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="EPS no encontrada"

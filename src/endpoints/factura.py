@@ -79,7 +79,7 @@ def listar_facturas(db: DbSession, skip: int = 0, limit: int = 100):
 
     Permite paginar los resultados usando skip y limit.
     """
-    return crud_factura.listar(db, skip=skip, limit=limit)
+    return crud_factura.obtener_todos(db, skip=skip, limit=limit)
 
 
 @router.get("/{id_factura}", response_model=FacturaRead)
@@ -89,7 +89,7 @@ def obtener_factura(db: DbSession, id_factura: UUID):
 
     Retorna la factura si existe; de lo contrario devuelve error 404.
     """
-    f = crud_factura.obtener(db, id_factura)
+    f = crud_factura.obtener_por_id(db, id_factura)
     if not f:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada"
@@ -105,7 +105,7 @@ def crear_factura(db: DbSession, body: FacturaCreate):
     Valida que los datos sean correctos antes de registrarla.
     """
     try:
-        return crud_factura.crear(
+        return crud_factura.crear_factura(
             db,
             id_cita=body.id_cita,
             total=body.total,
