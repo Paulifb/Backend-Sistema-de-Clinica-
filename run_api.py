@@ -2,6 +2,9 @@
 Arranca la API FastAPI (uvicorn).
 
   python run_api.py
+Arranca la API FastAPI (uvicorn).rando e
+
+  python main.py
 
 Documentación interactiva: http://127.0.0.1:8000/docs
 
@@ -9,6 +12,7 @@ Para crear tablas en la base de datos, usa: python migrardb.py
 """
 
 import uvicorn
+
 from src.endpoints.app import app
 
 if __name__ == "__main__":
