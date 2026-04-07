@@ -14,7 +14,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, ConfigDict
 
 from .deps import DbSession
-from src.crud import factura as crud_factura
+from src.crud import crud_factura
 
 
 router = APIRouter(prefix="/facturas", tags=["Facturas"])

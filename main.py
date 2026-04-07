@@ -1,12 +1,14 @@
 """
 Punto de entrada: inicio de sesión (o creación del primer usuario)
-y menú CRUD para Categoría, Producto y Pedido.
+y menú CRUD.
 """
 
 from datetime import datetime, timezone
 import sys
 from typing import Optional
 from uuid import UUID
+from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
 
 sys.path.insert(0, ".")
 
@@ -53,12 +55,11 @@ def leer_uuid(mensaje: str) -> Optional[UUID]:
         return None
 
 
-def ingresar_o_crear_usuario() -> Optional[Usuario]:
+def ingresar_o_crear_usuario(db: Session) -> Optional[Usuario]:
     """
     Maneja creación del primer usuario y login.
     """
-
-    if not usuario.hay_usuarios():
+    if not usuario.hay_usuarios(db):
         print("\n--- No hay usuarios en el sistema ---")
         print("Crea el primer usuario.\n")
 
@@ -84,6 +85,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
 
         try:
             usuario_creado = usuario.crear_usuario(
+                db,
                 nombre_completo=nombre,
                 email=email,
                 clave=clave,
@@ -109,7 +111,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
                 print("Campos obligatorios.\n")
                 continue
 
-            usuario_log = usuario.login_usuario(email, clave)
+            usuario_log = usuario.login_usuario(db, email, clave)
 
             if usuario_log:
                 print(
@@ -127,6 +129,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
                 rol = leer_texto("Rol (paciente/medico/enfermero): ")
 
                 nuevo = usuario.crear_usuario(
+                    db,
                     nombre_completo=nombre,
                     email=email,
                     clave=clave,
@@ -143,7 +146,8 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             return None
 
 
-def menu_paciente(usuario):
+def menu_paciente(usuario, db: Session):
+
     while True:
         print("\n--- PACIENTE ---")
         print(
@@ -153,9 +157,9 @@ def menu_paciente(usuario):
 
         if op == "1":
             encontrado = False
-            for p in paciente.obtener_todos():
+            for p in paciente.obtener_todos(db):
                 if p.id_usuario == usuario.id_usuario:
-                    eps_obj = eps.obtener_por_id(p.id_eps)
+                    eps_obj = eps.obtener_por_id(db, p.id_eps)
                     nombre_eps = eps_obj.nombre if eps_obj else "Sin EPS"
                     print(
                         f"ID: {p.id_paciente} | Nombre: {p.nombre} | EPS: {nombre_eps}"
@@ -188,7 +192,7 @@ def menu_paciente(usuario):
                     print("Todos los datos de la EPS son obligatorios")
                     continue
 
-                lista_eps = eps.obtener_todos()
+                lista_eps = eps.obtener_todos(db)
                 eps_encontrada = None
 
                 for e in lista_eps:
@@ -221,7 +225,7 @@ def menu_paciente(usuario):
                 print("Error:", e)
 
         elif op == "3":
-            for p in paciente.obtener_todos():
+            for p in paciente.obtener_todos(db):
                 eps_obj = eps.obtener_por_id(p.id_eps)
                 nombre_eps = eps_obj.nombre if eps_obj else "Sin EPS"
                 print(
@@ -270,6 +274,7 @@ def menu_paciente(usuario):
                     continue
 
                 paciente.actualizar(
+                    db,
                     id_paciente=paciente_encontrado.id_paciente,
                     id_usuario_edicion=usuario.id_usuario,
                     **datos_actualizar,
@@ -295,7 +300,7 @@ def menu_paciente(usuario):
             confirmacion = leer_texto("¿Seguro que deseas eliminar tu perfil? (s/n): ")
 
             if confirmacion.lower() == "s":
-                eliminado = paciente.eliminar(paciente_encontrado.id_paciente)
+                eliminado = paciente.eliminar(db, paciente_encontrado.id_paciente)
 
                 if eliminado:
                     print("Perfil eliminado correctamente.")
@@ -305,13 +310,13 @@ def menu_paciente(usuario):
                 print("Operación cancelada.")
 
         elif op == "7":
-            menu_citas_paciente(usuario)
+            menu_citas_paciente(usuario, db)
 
         elif op == "0":
             break
 
 
-def menu_citas_paciente(usuario):
+def menu_citas_paciente(usuario, db: Session):
     while True:
         print("\n--- CITAS ---")
         print(
@@ -320,9 +325,9 @@ def menu_citas_paciente(usuario):
         op = leer_texto("Opción: ")
 
         if op == "1":
-            citas = cita.obtener_todos()
+            citas = cita.obtener_todos(db)
             for c in citas:
-                servicios = servicio.obtener_por_id(c.id_servicio)
+                servicios = servicio.obtener_por_id(db, c.id_servicio)
                 print(f"{c.id_cita} | {servicios.nombre} | {c.fecha_hora} | {c.estado}")
 
         elif op == "2":
@@ -339,7 +344,7 @@ def menu_citas_paciente(usuario):
                 continue
 
             print("\n-- Servicios disponibles --")
-            lista_servicios = servicio.obtener_todos()
+            lista_servicios = servicio.obtener_todos(db)
 
             for s in lista_servicios:
                 print(f"{s.id_servicio} | {s.nombre} | ${s.costo_base}")
@@ -369,6 +374,7 @@ def menu_citas_paciente(usuario):
                     duracion = leer_texto("Duración (ej: 30 min) (opcional): ")
 
                     servicio_encontrado = servicio.crear_servicio(
+                        db,
                         nombre=nombre_servicio,
                         costo_base=costo,
                         id_usuario=usuario.id_usuario,
@@ -395,6 +401,7 @@ def menu_citas_paciente(usuario):
                 fecha_hora = fecha_hora.replace(tzinfo=timezone.utc)
 
                 cita.crear_cita(
+                    db,
                     id_paciente=id_paciente,
                     id_medico=id_medico,
                     id_servicio=id_servicio,
@@ -463,7 +470,7 @@ def menu_citas_paciente(usuario):
                 print("ID inválido")
                 continue
 
-            cita_obj = cita.obtener_por_id(id_cita)
+            cita_obj = cita.obtener_por_id(db, id_cita)
             if not cita_obj:
                 print("La cita no existe")
                 continue
@@ -475,7 +482,7 @@ def menu_citas_paciente(usuario):
             confirmacion = leer_texto("¿Seguro que deseas eliminar la cita? (s/n): ")
 
             if confirmacion.lower() == "s":
-                eliminado = cita.eliminar_cita(id_cita)
+                eliminado = cita.eliminar_cita(db, id_cita)
 
                 if eliminado:
                     print("Cita eliminada correctamente")
@@ -492,7 +499,7 @@ def menu_citas_paciente(usuario):
                 print("ID inválido")
                 continue
 
-            cita_obj = cita.obtener_por_id(id_cita)
+            cita_obj = cita.obtener_por_id(db, id_cita)
             if not cita_obj:
                 print("La cita no existe")
                 continue
@@ -511,12 +518,12 @@ def menu_citas_paciente(usuario):
                 print("No puedes generar factura de esta cita")
                 continue
 
-            facturas = factura.obtener_todos()
+            facturas = factura.obtener_todos(db)
             if any(f.id_cita == id_cita for f in facturas):
                 print("Ya existe factura para esta cita")
                 continue
 
-            servicio_obj = servicio.obtener_por_id(cita_obj.id_servicio)
+            servicio_obj = servicio.obtener_por_id(db, cita_obj.id_servicio)
 
             if not servicio_obj:
                 print("Servicio no encontrado")
@@ -531,6 +538,7 @@ def menu_citas_paciente(usuario):
 
             try:
                 factura.crear_factura(
+                    db,
                     id_cita=id_cita,
                     total=total,
                     estado_pago=estado_pago,
@@ -548,7 +556,7 @@ def menu_citas_paciente(usuario):
             break
 
 
-def menu_medico(usuario):
+def menu_medico(usuario, db: Session):
     while True:
         print("\n--- MEDICO ---")
         print(
@@ -564,10 +572,10 @@ def menu_medico(usuario):
                     print(f"{p.id_cita} | {servicios.nombre} | {p.fecha_hora}")
 
         elif op == "2":
-            menu_historial(usuario)
+            menu_historial(usuario, db)
 
         elif op == "3":
-            medicos = medico.obtener_todos_medicos()
+            medicos = medico.obtener_todos_medicos(db)
             for m in medicos:
                 espe = especialidad.obtener_por_id(m.id_especialidad)
                 print(f"{m.id_medico} | {espe.nombre}")
@@ -689,7 +697,7 @@ def menu_medico(usuario):
             break
 
 
-def menu_historial(usuario):
+def menu_historial(usuario, db: Session):
     while True:
         print("\n--- Historial Medico ---")
         print(
@@ -698,7 +706,7 @@ def menu_historial(usuario):
         op = leer_texto("Opción: ")
 
         if op == "1":
-            for h in historial.obtener_todos():
+            for h in historial.obtener_todos(db):
                 print(f"{h.id_historial} | {h.diagnostico} | {h.observaciones_medicas}")
 
         elif op == "2":
@@ -719,6 +727,7 @@ def menu_historial(usuario):
 
             try:
                 historial.crear_historial(
+                    db,
                     id_cita=id_cita,
                     id_enfermero=id_enfermero,
                     diagnostico=diagnostico,
@@ -772,20 +781,20 @@ def menu_historial(usuario):
                 print("Historial no encontrado")
 
         elif op == "5":
-            menu_tratamientos(usuario)
+            menu_tratamientos(usuario, db)
 
         elif op == "0":
             break
 
 
-def menu_tratamientos(usuario):
+def menu_tratamientos(usuario, db: Session):
     while True:
         print("\n--- TRATAMIENTOS ---")
         print("1. Ver  2. Crear tratamiento  3. Editar  4. Eliminar 0. Volver")
         op = leer_texto("Opción: ")
 
         if op == "1":
-            lista = tratamiento.obtener_todos()
+            lista = tratamiento.obtener_todos(db)
 
             if not lista:
                 print("No hay tratamientos registrados")
@@ -900,7 +909,7 @@ def menu_tratamientos(usuario):
             break
 
 
-def menu_enfermero(usuario: Usuario) -> None:
+def menu_enfermero(usuario: Usuario, db: Session) -> None:
     """Interfaz de consola para operaciones de enfermería."""
     while True:
         print("\n--- MODULO ENFERMERO ---")
@@ -910,11 +919,12 @@ def menu_enfermero(usuario: Usuario) -> None:
         if op == "0":
             break
         elif op == "1":
-            for e in enfermero.obtener_todos():
+            for e in enfermero.obtener_todos(db):
                 print(f"{e.id_enfermero} | {e.nombre} | {e.area}")
         elif op == "2":
             try:
                 enfermero.crear_enfermero(
+                    db,
                     leer_texto("Nombre: "),
                     leer_texto("Teléfono: "),
                     leer_texto("Área: "),
@@ -947,7 +957,9 @@ def menu_enfermero(usuario: Usuario) -> None:
 
 
 def main() -> None:
-    usuario = ingresar_o_crear_usuario()
+
+    db = SessionLocal()
+    usuario = ingresar_o_crear_usuario(db)
     if not usuario:
         print("No se pudo iniciar sesión. Saliendo.")
         return
@@ -965,13 +977,13 @@ def main() -> None:
             break
 
         if usuario.rol == "paciente":
-            menu_paciente(usuario)
+            menu_paciente(usuario, db)
 
         elif usuario.rol == "medico":
-            menu_medico(usuario)
+            menu_medico(usuario, db)
 
         elif usuario.rol == "enfermero":
-            menu_enfermero(usuario)
+            menu_enfermero(usuario, db)
 
         else:
             print("Opción no válida.")

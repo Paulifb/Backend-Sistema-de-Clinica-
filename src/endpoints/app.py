@@ -1,21 +1,25 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from src.database.config import create_tables
-from . import especialidad, medico, servicio
 
-from fastapi import FastAPI
 
-from src.database.config import create_tables
-
-from . import cita, enfermero, historial, usuario
+from . import (
+    cita,
+    enfermero,
+    historial,
+    usuario,
+    medico,
+    especialidad,
+    servicio,
+    paciente,
+    eps,
+    factura,
+    tratamiento,
+)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # Registra modelos y crea tablas si no existen
-    import src.entities.especialidad  # noqa: F401
-    import src.entities.medico  # noqa: F401
-    import src.entities.servicio  # noqa: F401
     """
     Gestiona el ciclo de vida de la aplicación FastAPI.
 
@@ -35,6 +39,13 @@ async def lifespan(_app: FastAPI):
     import src.entities.enfermero  # noqa: F401
     import src.entities.historial  # noqa: F401
     import src.entities.usuario  # noqa: F401
+    import src.entities.medico  # noqa: F401
+    import src.entities.especialidad  # noqa: F401
+    import src.entities.servicio  # noqa: F401
+    import src.entities.paciente  # noqa: F401
+    import src.entities.eps  # noqa: F401
+    import src.entities.factura  # noqa: F401
+    import src.entities.tratamiento  # noqa: F401
 
     create_tables()
     yield
@@ -49,6 +60,10 @@ app.include_router(usuario.router)
 app.include_router(cita.router)
 app.include_router(enfermero.router)
 app.include_router(historial.router)
+app.include_router(paciente.router)
+app.include_router(eps.router)
+app.include_router(factura.router)
+app.include_router(tratamiento.router)
 
 
 @app.get("/health")
