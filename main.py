@@ -202,12 +202,14 @@ def menu_paciente(usuario, db: Session):
 
                 if not eps_encontrada:
                     eps_encontrada = eps.crear_eps(
+                        db,
                         nombre=nombre_eps,
                         telefono=telefono_eps,
                         direccion=direccion_eps,
                     )
 
                 paciente.crear_paciente(
+                    db,
                     nombre=nombre,
                     fecha_nacimiento=fecha_nacimiento,
                     genero=leer_texto("Género: "),
@@ -226,14 +228,14 @@ def menu_paciente(usuario, db: Session):
 
         elif op == "3":
             for p in paciente.obtener_todos(db):
-                eps_obj = eps.obtener_por_id(p.id_eps)
+                eps_obj = eps.obtener_por_id(db, p.id_eps)
                 nombre_eps = eps_obj.nombre if eps_obj else "Sin EPS"
                 print(
                     f"{p.id_paciente} | {p.nombre} | {p.tipo_afiliacion} | {nombre_eps}"
                 )
 
         elif op == "4":
-            lista_eps = eps.obtener_todos()
+            lista_eps = eps.obtener_todos(db)
             if not lista_eps:
                 print("No hay EPS registradas.")
             else:
@@ -244,7 +246,7 @@ def menu_paciente(usuario, db: Session):
         elif op == "5":
             paciente_encontrado = None
 
-            for p in paciente.obtener_todos():
+            for p in paciente.obtener_todos(db):
                 if p.id_usuario == usuario.id_usuario:
                     paciente_encontrado = p
                     break
@@ -449,6 +451,7 @@ def menu_citas_paciente(usuario, db: Session):
 
             try:
                 actualizado = cita.actualizar_cita(
+                    db,
                     id_cita=id_cita,
                     id_usuario_edicion=usuario.id_usuario,
                     **datos,
@@ -505,7 +508,7 @@ def menu_citas_paciente(usuario, db: Session):
                 continue
 
             paciente_obj = None
-            for p in paciente.obtener_todos():
+            for p in paciente.obtener_todos(db):
                 if p.id_usuario == usuario.id_usuario:
                     paciente_obj = p
                     break
@@ -565,10 +568,10 @@ def menu_medico(usuario, db: Session):
         op = leer_texto("Opción: ")
 
         if op == "1":
-            citas = cita.obtener_todos()
+            citas = cita.obtener_todos(db)
             for p in citas:
                 if p.id_medico == usuario.id_usuario:
-                    servicios = servicio.obtener_por_id(p.id_servicio)
+                    servicios = servicio.obtener_por_id(db, p.id_servicio)
                     print(f"{p.id_cita} | {servicios.nombre} | {p.fecha_hora}")
 
         elif op == "2":
@@ -577,7 +580,7 @@ def menu_medico(usuario, db: Session):
         elif op == "3":
             medicos = medico.obtener_todos_medicos(db)
             for m in medicos:
-                espe = especialidad.obtener_por_id(m.id_especialidad)
+                espe = especialidad.obtener_por_id(db, m.id_especialidad)
                 print(f"{m.id_medico} | {espe.nombre}")
 
         elif op == "4":
@@ -592,7 +595,7 @@ def menu_medico(usuario, db: Session):
                     print("ID de usuario inválido")
                     continue
 
-                lista_especialidades = especialidad.obtener_todas()
+                lista_especialidades = especialidad.obtener_todas(db)
                 print("\n-- Especialidades disponibles --")
                 for e in lista_especialidades:
                     print(f"{e.id_especialidad} | {e.nombre}")
@@ -613,6 +616,7 @@ def menu_medico(usuario, db: Session):
                         "Descripción de la especialidad (opcional): "
                     )
                     espe_encontrada = especialidad.crear_especialidad(
+                        db,
                         nombre=nombre_espe,
                         id_usuario=id_usuario,
                         descripcion=descripcion if descripcion else None,
@@ -622,6 +626,7 @@ def menu_medico(usuario, db: Session):
                 telefono_medico = leer_texto("Teléfono (opcional): ")
 
                 medico.crear_medico(
+                    db,
                     nombre=nombre_medico,
                     id_usuario=id_usuario,
                     id_especialidad=espe_encontrada.id_especialidad,
@@ -641,7 +646,7 @@ def menu_medico(usuario, db: Session):
                 continue
 
             print("\n-- Especialidades--")
-            for e in especialidad.obtener_todas():
+            for e in especialidad.obtener_todas(db):
                 print(f"{e.id_especialidad} | {e.nombre}")
 
             nombre_espe = leer_texto("Nueva especialidad: ")
@@ -650,7 +655,7 @@ def menu_medico(usuario, db: Session):
                 continue
 
             espe_encontrada = None
-            for e in especialidad.obtener_todas():
+            for e in especialidad.obtener_todas(db):
                 if e.nombre.lower() == nombre_espe.lower():
                     espe_encontrada = e
                     break
@@ -667,6 +672,7 @@ def menu_medico(usuario, db: Session):
 
             try:
                 actualizado = medico.actualizar_medico(
+                    db,
                     id_medico,
                     id_usuario=usuario.id_usuario,
                     id_especialidad=espe_encontrada.id_especialidad,
@@ -686,7 +692,7 @@ def menu_medico(usuario, db: Session):
                 print("ID inválido")
                 continue
 
-            eliminado = medico.eliminar_medico(id_medico)
+            eliminado = medico.eliminar_medico(db, id_medico)
 
             if eliminado:
                 print("Médico eliminado")
@@ -754,6 +760,7 @@ def menu_historial(usuario, db: Session):
 
             try:
                 actualizado = historial.actualizar_historial(
+                    db,
                     id_historial=id_historial,
                     id_usuario_edicion=usuario.id_usuario,
                     diagnostico=diagnostico,
@@ -773,7 +780,7 @@ def menu_historial(usuario, db: Session):
                 print("ID inválido")
                 continue
 
-            eliminado = historial.eliminar_historial(id_historial)
+            eliminado = historial.eliminar_historial(db, id_historial)
 
             if eliminado:
                 print("Historial eliminado")
@@ -831,6 +838,7 @@ def menu_tratamientos(usuario, db: Session):
 
             try:
                 tratamiento.crear(
+                    db,
                     id_historial=id_historial,
                     nombre_tratamiento=nombre,
                     dosis=dosis,
@@ -876,6 +884,7 @@ def menu_tratamientos(usuario, db: Session):
 
             try:
                 actualizado = tratamiento.actualizar(
+                    db,
                     id_tratamiento=id_tratamiento,
                     **datos,
                 )
@@ -896,7 +905,7 @@ def menu_tratamientos(usuario, db: Session):
             confirmacion = leer_texto("¿Seguro que deseas eliminar? (s/n): ")
 
             if confirmacion.lower() == "s":
-                eliminado = tratamiento.eliminar(id_tratamiento)
+                eliminado = tratamiento.eliminar(db, id_tratamiento)
 
                 if eliminado:
                     print("Tratamiento eliminado")
@@ -946,6 +955,7 @@ def menu_enfermero(usuario: Usuario, db: Session) -> None:
 
             try:
                 historial.actualizar_historial(
+                    db,
                     id_historial=id_h,
                     id_usuario_edicion=usuario.id_usuario,
                     observaciones_enfermeria=leer_texto("Observaciones: "),
