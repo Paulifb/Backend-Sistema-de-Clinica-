@@ -70,7 +70,7 @@ def listar_tratamientos(db: DbSession):
 
     Devuelve una colección con los tratamientos existentes.
     """
-    return crud_tratamiento.listar()
+    return crud_tratamiento.obtener_todos(db)
 
 
 @router.get("/{id_tratamiento}", response_model=TratamientoRead)
@@ -80,7 +80,7 @@ def obtener_tratamiento(db: DbSession, id_tratamiento: UUID):
 
     Retorna el tratamiento si existe; de lo contrario lanza un error 404.
     """
-    tratamiento = crud_tratamiento.obtener(id_tratamiento)
+    tratamiento = crud_tratamiento.obtener_por_id(db, id_tratamiento)
     if not tratamiento:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tratamiento no encontrado")
     return tratamiento
@@ -95,6 +95,7 @@ def crear_tratamiento(db: DbSession, body: TratamientoCreate):
     """
     try:
         return crud_tratamiento.crear(
+            db,
             id_historial=body.id_historial,
             nombre_tratamiento=body.nombre_tratamiento,
             descripcion=body.descripcion,
@@ -117,7 +118,7 @@ def actualizar_tratamiento(
     data = body.model_dump(exclude_unset=True)
 
     try:
-        tratamiento = crud_tratamiento.actualizar(id_tratamiento, **data)
+        tratamiento = crud_tratamiento.actualizar(db, id_tratamiento, **data)
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
 
@@ -134,5 +135,5 @@ def eliminar_tratamiento(db: DbSession, id_tratamiento: UUID):
 
     Retorna error 404 si el tratamiento no existe.
     """
-    if not crud_tratamiento.eliminar(id_tratamiento):
+    if not crud_tratamiento.eliminar(db, id_tratamiento):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tratamiento no encontrado")
