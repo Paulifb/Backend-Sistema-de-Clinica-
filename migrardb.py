@@ -22,8 +22,8 @@ import src.entities.servicio
 import src.entities.especialidad
 import src.entities.paciente
 import src.entities.usuario
-
 import src.entities.tratamiento
+
 from src.database.config import create_tables
 
 # Cargar .env desde la carpeta del proyecto (donde está init_db.py)

@@ -85,11 +85,11 @@ def obtener_por_id(db: Session, id_factura: UUID) -> Optional[Factura]:
     return db.query(Factura).filter(Factura.id_factura == id_factura).first()
 
 
-def obtener_todos(db: Session) -> List[Factura]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Factura]:
     """
     Obtiene y devuelve todas las facturas registradas.
     """
-    return db.query(Factura).all()
+    return db.query(Factura).offset(skip).limit(limit).all()
 
 
 def actualizar(
