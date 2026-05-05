@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from src.database.config import create_tables
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from . import (
@@ -64,6 +65,14 @@ app.include_router(paciente.router)
 app.include_router(eps.router)
 app.include_router(factura.router)
 app.include_router(tratamiento.router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")
